@@ -1301,7 +1301,27 @@ async function parsePDF(file) {
   const pdfjsLib = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  let pdf;
+  try {
+    pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  } catch (err) {
+    if (err.name === 'PasswordException' || (err.message && err.message.includes('password'))) {
+      // PDF is password-protected — ask user for password
+      const password = prompt('This PDF is password-protected.\nFor TNG eWallet statements, the password is usually your IC number (NRIC) — 12 digits, no dashes.\n\nEnter password:');
+      if (!password) throw new Error('Password required');
+      try {
+        pdf = await pdfjsLib.getDocument({ data: arrayBuffer, password }).promise;
+      } catch (err2) {
+        if (err2.name === 'PasswordException' || (err2.message && err2.message.includes('password'))) {
+          showToast('Wrong password — try again');
+          throw new Error('Incorrect password');
+        }
+        throw err2;
+      }
+    } else {
+      throw err;
+    }
+  }
   let allText = '';
 
   for (let i = 1; i <= pdf.numPages; i++) {
