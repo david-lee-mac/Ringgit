@@ -1352,86 +1352,129 @@ function parseTNGStatement(text) {
   const results = [];
   const lines = text.split('\n').map(l => l.trim()).filter(l => l);
 
-  // TNG statement patterns:
-  // Date line: "DD/MM/YYYY" or "DD MMM YYYY" or embedded in a line
-  // Transaction types: Payment, Reload, Transfer, Direct Credit, GO+ Daily Earning, etc.
-  // Amount: typically "- RM X.XX" for debits, "+ RM X.XX" or "RM X.XX" for credits
+  // Log raw text to console for debugging
+  console.log('=== TNG RAW TEXT (first 200 lines) ===');
+  lines.slice(0, 200).forEach((l, i) => console.log(`[${i}] ${l}`));
 
-  // TNG transaction types that are SPENDING (debits)
-  const spendingTypes = ['payment', 'transfer out', 'withdrawal', 'bill payment', 'payment to'];
   // TNG transaction types to SKIP (not spending)
-  const skipTypes = ['reload', 'transfer in', 'direct credit', 'go+ daily earning', 'go+', 'cashback', 'refund', 'money packet received', 'received'];
+  const skipTypes = ['reload', 'top up', 'top-up', 'transfer in', 'direct credit', 'go+ daily earning',
+    'go+ daily', 'cashback', 'refund', 'money packet received', 'received', 'bonus', 'reward',
+    'reversal', 'credit', 'interest'];
+
+  // Noise lines to ignore when looking for descriptions
+  const noisePat = /^(page|date|time|description|amount|balance|transaction|no\.|ref|reference|total|statement|e-?wallet|touch.*go|tng|generated|print|period|opening|closing|\d{10,}|[a-f0-9]{20,})/i;
+  const isNoise = (s) => !s || s.length < 3 || noisePat.test(s) || /^\d+$/.test(s) || /^[\-\+\.\s]+$/.test(s);
+
+  // Helper: check if a line is purely a date
+  const isDateLine = (s) => /^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/.test(s) ||
+    /^\d{1,2}\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}$/i.test(s);
+
+  // Helper: check if a line is purely an amount
+  const isAmountLine = (s) => /^[-\(]?\s*RM\s*[\d,]+\.?\d*\s*\)?$/i.test(s);
+
+  // Helper: extract date from a string
+  function extractDate(s) {
+    let m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+    if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+    m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2})/);
+    if (m) { const yr = parseInt(m[3]) > 50 ? '19'+m[3] : '20'+m[3]; return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
+    m = s.match(/(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})/i);
+    if (m) { const months={jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'}; return `${m[3]}-${months[m[2].toLowerCase()]}-${m[1].padStart(2,'0')}`; }
+    return null;
+  }
+
+  // Helper: clean a candidate description
+  function cleanDesc(s) {
+    if (!s) return '';
+    let d = s;
+    d = d.replace(/[-\(]?\s*RM\s*[\d,]+\.?\d*\s*\)?/gi, '');
+    d = d.replace(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g, '');
+    d = d.replace(/\d{1,2}\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}/gi, '');
+    d = d.replace(/\d{1,2}:\d{2}\s*(AM|PM|am|pm)?/g, '');
+    d = d.replace(/^(transaction|txn|ref|reference|trx)\s*:?\s*/i, '');
+    d = d.replace(/^\W+|\W+$/g, '');
+    return d.trim();
+  }
 
   let currentDate = '';
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Try to find date patterns
-    const dateMatch = line.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-    const dateMatch2 = line.match(/(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})/i);
-
-    if (dateMatch) {
-      currentDate = `${dateMatch[3]}-${dateMatch[2].padStart(2,'0')}-${dateMatch[1].padStart(2,'0')}`;
-    } else if (dateMatch2) {
-      const months = {jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
-      const mon = months[dateMatch2[2].toLowerCase()];
-      if (mon) currentDate = `${dateMatch2[3]}-${mon}-${dateMatch2[1].padStart(2,'0')}`;
+    // Track dates
+    const lineDate = extractDate(line);
+    if (lineDate && (isDateLine(line) || line.length < 20)) {
+      currentDate = lineDate;
     }
 
-    // Try to find amount in line: "RM X.XX" or "- RM X.XX" or "(RM X.XX)"
+    // Find amounts
     const amountMatch = line.match(/[-\(]?\s*RM\s*([\d,]+\.?\d*)\s*\)?/i);
     if (!amountMatch) continue;
 
     const amount = parseFloat(amountMatch[1].replace(/,/g, ''));
     if (!amount || amount <= 0) continue;
 
-    // Get description from the line or surrounding context
-    let description = line.replace(/[-\(]?\s*RM\s*[\d,]+\.?\d*\s*\)?/gi, '').trim();
-    // Remove date from description
-    description = description.replace(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/g, '').trim();
-    description = description.replace(/\d{1,2}\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}/gi, '').trim();
+    // Build description from context: scan up to 5 lines before and 3 lines after
+    let description = cleanDesc(line);
+    let txDate = lineDate || currentDate;
+    let contextLines = [];
 
-    // Clean up common TNG prefixes
-    description = description.replace(/^(transaction|txn|ref|reference)\s*:?\s*/i, '').trim();
+    // Look backwards for description candidates
+    for (let b = 1; b <= 5 && i - b >= 0; b++) {
+      const prev = lines[i - b];
+      if (isAmountLine(prev)) break; // hit another amount = stop
+      const cleaned = cleanDesc(prev);
+      if (!isNoise(cleaned) && cleaned.length > 2 && cleaned !== 'RM') {
+        contextLines.unshift(cleaned);
+      }
+      const pd = extractDate(prev);
+      if (pd && !txDate) txDate = pd;
+      if (pd) break; // date usually marks the start of a transaction block
+    }
 
-    if (!description && i + 1 < lines.length) {
-      // Check next line for description
-      const nextLine = lines[i + 1];
-      if (!nextLine.match(/RM\s*[\d,]+\.?\d*/i) && nextLine.length > 2) {
-        description = nextLine.trim();
+    // Look forward for description candidates
+    for (let f = 1; f <= 3 && i + f < lines.length; f++) {
+      const next = lines[i + f];
+      if (isAmountLine(next)) break;
+      if (extractDate(next) && isDateLine(next)) break;
+      const cleaned = cleanDesc(next);
+      if (!isNoise(cleaned) && cleaned.length > 2 && cleaned !== 'RM') {
+        contextLines.push(cleaned);
       }
     }
 
-    if (!description) description = 'TNG Transaction';
+    // Use context if main description is weak
+    if (!description || description === 'RM' || description.length < 3) {
+      description = contextLines.join(' — ') || 'TNG Transaction';
+    } else if (contextLines.length > 0) {
+      // Append context for richer description
+      const extra = contextLines.filter(c => c !== description).join(' — ');
+      if (extra) description = description + ' — ' + extra;
+    }
 
-    // Determine if this is spending or not
-    const lowerDesc = (description + ' ' + line).toLowerCase();
-    const isSkip = skipTypes.some(t => lowerDesc.includes(t));
-    const isSpending = spendingTypes.some(t => lowerDesc.includes(t));
+    // Final cleanup
+    description = description.substring(0, 100);
 
-    // If it's clearly a reload/credit, skip it
-    if (isSkip && !isSpending) continue;
-
-    // For lines with "- RM" (debit indicator), always include
+    // Determine if this is spending or skip
+    const lowerAll = (description + ' ' + line + ' ' + contextLines.join(' ')).toLowerCase();
+    const isSkip = skipTypes.some(t => lowerAll.includes(t));
     const isDebit = /[-\(]\s*RM/i.test(line);
 
-    // Include if it's a spending type OR has a debit indicator OR we can't determine (let user decide)
-    if (isSpending || isDebit || !isSkip) {
-      results.push({
-        date: currentDate || '',
-        description: description.substring(0, 80),
-        amount: amount,
-        matched: false,
-        matchedTxId: null,
-        skipped: false,
-        logged: false,
-        source: 'tng',
-      });
-    }
+    if (isSkip && !isDebit) continue;
+
+    results.push({
+      date: txDate || '',
+      description,
+      amount,
+      matched: false,
+      matchedTxId: null,
+      skipped: false,
+      logged: false,
+      source: 'tng',
+    });
   }
 
-  // Deduplicate entries with same date + amount + description
+  // Deduplicate — but allow same amount+date if descriptions differ
   const seen = new Set();
   return results.filter(r => {
     const key = `${r.date}_${r.amount}_${r.description}`;
