@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0f172a">
+<meta name="theme-color" content="#09090b">
 <title>Ringgit — Money Discipline</title>
 <link rel="manifest" href="manifest.json">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
@@ -13,18 +13,18 @@
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 :root {
-  --bg: #0f172a;
-  --surface: #1e293b;
-  --surface2: #334155;
-  --text: #f1f5f9;
-  --text-dim: #94a3b8;
-  --accent: #38bdf8;
-  --green: #4ade80;
-  --red: #f87171;
-  --orange: #fb923c;
-  --purple: #a78bfa;
-  --pink: #f472b6;
-  --yellow: #facc15;
+  --bg: #09090b;
+  --surface: #141418;
+  --surface2: #222228;
+  --text: #f0f0f2;
+  --text-dim: #6e6e7a;
+  --accent: #06d6a0;
+  --green: #06d6a0;
+  --red: #ef6461;
+  --orange: #f4a261;
+  --purple: #9b72f2;
+  --pink: #e87be0;
+  --yellow: #f0c040;
   --radius: 14px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
@@ -111,8 +111,8 @@ body {
   font-size: 14px; font-weight: 600; cursor: pointer;
   transition: all 0.2s; background: transparent; color: var(--text-dim);
 }
-.log-type-btn.active-expense { background: rgba(248,113,113,0.15); color: var(--red); }
-.log-type-btn.active-income { background: rgba(74,222,128,0.15); color: var(--green); }
+.log-type-btn.active-expense { background: rgba(239,100,97,0.15); color: var(--red); }
+.log-type-btn.active-income { background: rgba(6,214,160,0.15); color: var(--green); }
 
 .amount-display { text-align: center; padding: 20px 0 8px; }
 .amount-currency { font-size: 18px; color: var(--text-dim); font-weight: 500; }
@@ -265,7 +265,7 @@ body {
   color: var(--accent); font-size: 14px; font-weight: 600;
   cursor: pointer; margin-bottom: 16px; transition: all 0.2s;
 }
-.reconcile-btn:active { background: rgba(56,189,248,0.1); }
+.reconcile-btn:active { background: rgba(6,214,160,0.1); }
 
 .recon-item {
   background: var(--surface); border-radius: var(--radius);
@@ -284,8 +284,8 @@ body {
   font-size: 11px; font-weight: 600; padding: 3px 8px;
   border-radius: 10px; margin-top: 6px; display: inline-block;
 }
-.recon-status.found { background: rgba(74,222,128,0.15); color: var(--green); }
-.recon-status.missing { background: rgba(251,146,60,0.15); color: var(--orange); }
+.recon-status.found { background: rgba(6,214,160,0.15); color: var(--green); }
+.recon-status.missing { background: rgba(244,162,97,0.15); color: var(--orange); }
 
 .recon-actions { display: flex; gap: 6px; margin-top: 8px; }
 .recon-action-btn {
@@ -311,7 +311,7 @@ body {
   padding: 40px 20px; text-align: center; cursor: pointer;
   transition: all 0.2s; margin-bottom: 16px;
 }
-.file-upload-area:active { border-color: var(--accent); background: rgba(56,189,248,0.05); }
+.file-upload-area:active { border-color: var(--accent); background: rgba(6,214,160,0.05); }
 .file-upload-icon { font-size: 40px; margin-bottom: 12px; }
 .file-upload-text { font-size: 15px; font-weight: 500; }
 .file-upload-hint { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
@@ -357,10 +357,10 @@ body {
 
 .modal-delete-btn {
   width: 100%; padding: 14px; background: none; color: var(--red);
-  border: 1px solid rgba(248,113,113,0.3); border-radius: 12px;
+  border: 1px solid rgba(239,100,97,0.3); border-radius: 12px;
   font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px;
 }
-.modal-delete-btn:active { background: rgba(248,113,113,0.1); }
+.modal-delete-btn:active { background: rgba(239,100,97,0.1); }
 
 .cat-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .cat-pick-btn {
@@ -443,8 +443,8 @@ body {
   font-size: 11px; font-weight: 600; padding: 2px 8px;
   border-radius: 10px; margin-left: 6px;
 }
-.compare-badge.up { background: rgba(248,113,113,0.15); color: var(--red); }
-.compare-badge.down { background: rgba(74,222,128,0.15); color: var(--green); }
+.compare-badge.up { background: rgba(239,100,97,0.15); color: var(--red); }
+.compare-badge.down { background: rgba(6,214,160,0.15); color: var(--green); }
 .compare-badge.neutral { background: rgba(148,163,184,0.15); color: var(--text-dim); }
 
 /* Budget alert */
@@ -453,8 +453,8 @@ body {
   padding: 10px 14px; border-radius: 10px; margin-bottom: 8px;
   font-size: 13px; font-weight: 500;
 }
-.budget-alert.warning { background: rgba(251,146,60,0.12); color: var(--orange); }
-.budget-alert.over { background: rgba(248,113,113,0.12); color: var(--red); }
+.budget-alert.warning { background: rgba(244,162,97,0.12); color: var(--orange); }
+.budget-alert.over { background: rgba(239,100,97,0.12); color: var(--red); }
 
 .budget-set-btn {
   font-size: 11px; color: var(--accent); background: none; border: none;
@@ -535,13 +535,13 @@ const DB_VERSION = 1;
 let db = null;
 
 const CATEGORIES = [
-  { id: 'makan', emoji: '🍜', label: 'Makan', color: '#fb923c' },
-  { id: 'transport', emoji: '🚗', label: 'Transport', color: '#38bdf8' },
-  { id: 'bills', emoji: '🏠', label: 'Bills', color: '#a78bfa' },
-  { id: 'shopping', emoji: '🛍️', label: 'Shopping', color: '#f472b6' },
-  { id: 'fun', emoji: '🎮', label: 'Fun', color: '#facc15' },
-  { id: 'income', emoji: '💰', label: 'Income', color: '#4ade80' },
-  { id: 'uncategorized', emoji: '❓', label: 'Uncategorized', color: '#64748b' },
+  { id: 'makan', emoji: '🍜', label: 'Makan', color: '#f4a261' },
+  { id: 'transport', emoji: '🚗', label: 'Transport', color: '#4cc9f0' },
+  { id: 'bills', emoji: '🏠', label: 'Bills', color: '#9b72f2' },
+  { id: 'shopping', emoji: '🛍️', label: 'Shopping', color: '#e87be0' },
+  { id: 'fun', emoji: '🎮', label: 'Fun', color: '#f0c040' },
+  { id: 'income', emoji: '💰', label: 'Income', color: '#06d6a0' },
+  { id: 'uncategorized', emoji: '❓', label: 'Uncategorized', color: '#4a4a56' },
 ];
 
 const KEYWORD_MAP = {
@@ -919,7 +919,7 @@ function renderPlanTab(container) {
   let uncatHtml = '';
   if (uncatItems.length > 0) {
     uncatHtml = `
-      <div class="card" style="border: 1px solid rgba(248,113,113,0.2);">
+      <div class="card" style="border: 1px solid rgba(239,100,97,0.2);">
         <div class="card-title" style="color: var(--red);">❓ Needs Categorizing (${uncatItems.length})</div>
         ${uncatItems.map(item => `
           <div class="uncat-item">
@@ -1301,27 +1301,20 @@ async function parsePDF(file) {
   const pdfjsLib = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  let pdf;
-  try {
-    pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  } catch (err) {
-    if (err.name === 'PasswordException' || (err.message && err.message.includes('password'))) {
-      // PDF is password-protected — ask user for password
-      const password = prompt('This PDF is password-protected.\nFor TNG eWallet statements, the password is usually your IC number (NRIC) — 12 digits, no dashes.\n\nEnter password:');
-      if (!password) throw new Error('Password required');
-      try {
-        pdf = await pdfjsLib.getDocument({ data: arrayBuffer, password }).promise;
-      } catch (err2) {
-        if (err2.name === 'PasswordException' || (err2.message && err2.message.includes('password'))) {
-          showToast('Wrong password — try again');
-          throw new Error('Incorrect password');
-        }
-        throw err2;
-      }
+  // Handle password-protected PDFs (e.g. TNG eWallet statements use IC number)
+  const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+  loadingTask.onPassword = (updatePassword, reason) => {
+    const msg = reason === 1
+      ? 'This PDF is password-protected.\nFor TNG eWallet, the password is your IC number (NRIC) — 12 digits, no dashes.\n\nEnter password:'
+      : 'Wrong password. Try again.\nTNG eWallet password = IC number (12 digits, no dashes).\n\nEnter password:';
+    const password = prompt(msg);
+    if (password) {
+      updatePassword(password);
     } else {
-      throw err;
+      loadingTask.destroy();
     }
-  }
+  };
+  const pdf = await loadingTask.promise;
   let allText = '';
 
   for (let i = 1; i <= pdf.numPages; i++) {
