@@ -105,69 +105,70 @@ body {
 }
 
 /* ── LOG TAB ── */
-.log-type-toggle { display: flex; background: var(--surface); border-radius: 10px; padding: 3px; margin-bottom: 16px; }
+.log-type-toggle { display: flex; background: var(--surface); border-radius: 10px; padding: 3px; margin-bottom: 8px; }
 .log-type-btn {
-  flex: 1; padding: 10px; border: none; border-radius: 8px;
+  flex: 1; padding: 8px; border: none; border-radius: 8px;
   font-size: 14px; font-weight: 600; cursor: pointer;
   transition: all 0.2s; background: transparent; color: var(--text-dim);
 }
 .log-type-btn.active-expense { background: rgba(239,100,97,0.15); color: var(--red); }
 .log-type-btn.active-income { background: rgba(6,214,160,0.15); color: var(--green); }
 
-.amount-display { text-align: center; padding: 20px 0 8px; }
-.amount-currency { font-size: 18px; color: var(--text-dim); font-weight: 500; }
-.amount-value { font-size: 48px; font-weight: 700; letter-spacing: -2px; min-height: 58px; }
+.amount-display { text-align: center; padding: 8px 0 4px; }
+.amount-currency { font-size: 16px; color: var(--text-dim); font-weight: 500; }
+.amount-value { font-size: 38px; font-weight: 700; letter-spacing: -2px; min-height: 46px; }
 .amount-value.expense { color: var(--text); }
 .amount-value.income { color: var(--green); }
 
+.log-meta-row {
+  display: flex; gap: 8px; margin-bottom: 6px;
+}
+.log-meta-row .desc-input { flex: 1; margin-bottom: 0; }
+
 .desc-input {
   width: 100%; background: var(--surface); border: 1px solid var(--surface2);
-  border-radius: 10px; padding: 14px 16px; color: var(--text);
-  font-size: 16px; outline: none; margin-bottom: 12px; transition: border-color 0.2s;
+  border-radius: 10px; padding: 11px 14px; color: var(--text);
+  font-size: 15px; outline: none; margin-bottom: 8px; transition: border-color 0.2s;
 }
 .desc-input:focus { border-color: var(--accent); }
 .desc-input::placeholder { color: var(--text-dim); opacity: 0.6; }
 
-.date-row {
-  display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+.date-input-compact {
+  background: var(--surface); border: 1px solid var(--surface2);
+  border-radius: 10px; padding: 11px 12px; color: var(--text);
+  font-size: 14px; outline: none; -webkit-appearance: none;
+  color-scheme: dark; width: 130px; flex-shrink: 0;
 }
-.date-label { font-size: 14px; color: var(--text-dim); font-weight: 500; white-space: nowrap; }
-.date-input {
-  flex: 1; background: var(--surface); border: 1px solid var(--surface2);
-  border-radius: 10px; padding: 12px 14px; color: var(--text);
-  font-size: 15px; outline: none; -webkit-appearance: none;
-  color-scheme: dark;
-}
-.date-input:focus { border-color: var(--accent); }
+.date-input-compact:focus { border-color: var(--accent); }
 
 .category-preview {
-  text-align: center; padding: 8px 0 12px; font-size: 14px;
-  color: var(--text-dim); min-height: 36px; transition: all 0.2s;
+  text-align: center; padding: 2px 0 6px; font-size: 13px;
+  color: var(--text-dim); min-height: 24px; transition: all 0.2s;
 }
 .category-preview.matched { color: var(--accent); }
 
 .quick-entries {
-  display: flex; gap: 8px; overflow-x: auto; padding: 0 0 12px;
+  display: flex; gap: 6px; overflow-x: auto; padding: 0 0 8px;
   -webkit-overflow-scrolling: touch; scrollbar-width: none;
 }
 .quick-entries::-webkit-scrollbar { display: none; }
 .quick-entry {
   flex-shrink: 0; background: var(--surface); border: 1px solid var(--surface2);
-  border-radius: 20px; padding: 8px 14px; color: var(--text);
-  font-size: 13px; cursor: pointer; white-space: nowrap; transition: all 0.15s;
+  border-radius: 20px; padding: 6px 12px; color: var(--text);
+  font-size: 12px; cursor: pointer; white-space: nowrap; transition: all 0.15s;
 }
 .quick-entry:active { transform: scale(0.95); background: var(--surface2); }
 
-.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 8px 0; }
+.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 4px 0; }
 .numpad-btn {
-  background: var(--surface); border: none; border-radius: 12px;
-  color: var(--text); font-size: 24px; font-weight: 500; padding: 16px;
+  background: var(--surface); border: none; border-radius: 10px;
+  color: var(--text); font-size: 22px; font-weight: 500; padding: 12px;
   cursor: pointer; transition: all 0.1s; -webkit-user-select: none; user-select: none;
 }
 .numpad-btn:active { background: var(--surface2); transform: scale(0.96); }
-.numpad-btn.action { background: var(--accent); color: var(--bg); font-size: 16px; font-weight: 700; }
+.numpad-btn.action { background: var(--accent); color: var(--bg); font-size: 15px; font-weight: 700; }
 .numpad-btn.action:active { opacity: 0.85; }
-.numpad-btn.backspace { font-size: 20px; }
+.numpad-btn.backspace { font-size: 18px; }
 
 /* ── MONTHLY PLAN TAB ── */
 .plan-summary { display: flex; gap: 10px; margin-bottom: 16px; }
@@ -741,10 +742,9 @@ function renderLogTab(container) {
       <span class="amount-currency">RM</span>
       <div class="amount-value ${logType}" id="amountDisplay">${amountStr === '0' ? '0' : amountStr}</div>
     </div>
-    <input class="desc-input" id="descInput" type="text" placeholder="${logType === 'income' ? 'e.g. Salary, Freelance...' : 'e.g. Nasi Lemak, Grab, Shopee...'}" oninput="onDescInput(this.value)" autocomplete="off">
-    <div class="date-row">
-      <span class="date-label">Date:</span>
-      <input class="date-input" id="logDateInput" type="date" value="${logDate}" onchange="logDate=this.value">
+    <div class="log-meta-row">
+      <input class="desc-input" id="descInput" type="text" placeholder="${logType === 'income' ? 'e.g. Salary, Freelance...' : 'e.g. Nasi Lemak, Grab...'}" oninput="onDescInput(this.value)" autocomplete="off">
+      <input class="date-input-compact" id="logDateInput" type="date" value="${logDate}" onchange="logDate=this.value">
     </div>
     <div class="category-preview" id="catPreview"></div>
     <div class="numpad">
@@ -761,7 +761,7 @@ function renderLogTab(container) {
       <button class="numpad-btn" onclick="numInput('0')">0</button>
       <button class="numpad-btn backspace" onclick="numBackspace()">⌫</button>
     </div>
-    <button class="numpad-btn action" style="width:100%;margin-top:8px;border-radius:12px;padding:16px;" onclick="saveEntry()">
+    <button class="numpad-btn action" style="width:100%;margin-top:4px;border-radius:10px;padding:14px;" onclick="saveEntry()">
       ${logType === 'income' ? '+ Add Income' : 'Log Spending'}
     </button>
   `;
@@ -973,11 +973,11 @@ function renderCommitmentItem(item, monthKey) {
       <div class="plan-check ${isPaid ? 'checked' : ''}" onclick="toggleCommitment('${item.id}')">
         <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
       </div>
-      <div class="plan-item-info">
+      <div class="plan-item-info" onclick="openEditCommitment('${item.id}')" style="cursor:pointer;">
         <div class="plan-item-name" style="${isPaid ? 'text-decoration:line-through;opacity:0.5' : ''}">${item.name}</div>
-        ${item.dueDate ? `<div class="plan-item-due">Due: ${item.dueDate}</div>` : ''}
+        ${item.dueDate ? `<div class="plan-item-due">Due: ${item.dueDate}</div>` : '<div class="plan-item-due" style="opacity:0.4;">Tap to edit</div>'}
       </div>
-      <span class="plan-item-amount ${item.type === 'income' ? 'income-amount' : 'expense-amount'}">${formatRM(item.amount)}</span>
+      <span class="plan-item-amount ${item.type === 'income' ? 'income-amount' : 'expense-amount'}" onclick="openEditCommitment('${item.id}')" style="cursor:pointer;">${formatRM(item.amount)}</span>
       <button class="delete-btn" onclick="deleteCommitment('${item.id}')">✕</button>
     </div>
   `;
@@ -1012,6 +1012,37 @@ async function deleteCommitment(id) {
   await dbDelete('commitments', id);
   renderCurrentTab();
   showToast('Removed');
+}
+
+function openEditCommitment(id) {
+  const item = allCommitments.find(c => c.id === id);
+  if (!item) return;
+  const modal = document.getElementById('modalContent');
+  modal.innerHTML = `
+    <div class="modal-handle"></div>
+    <div class="modal-title">${item.type === 'income' ? '💰 Edit Income Source' : '🏠 Edit Fixed Cost'}</div>
+    <input class="modal-input" id="editCommitName" value="${(item.name || '').replace(/"/g, '&quot;')}" placeholder="Name" autocomplete="off">
+    <div class="modal-row">
+      <input class="modal-input" id="editCommitAmount" type="number" inputmode="decimal" value="${item.amount}" step="0.01" placeholder="Amount (RM)">
+      <input class="modal-input" id="editCommitDue" type="text" value="${item.dueDate || ''}" placeholder="Due date" style="max-width:140px">
+    </div>
+    <button class="modal-save-btn" onclick="saveEditCommitment('${id}')">Save Changes</button>
+    <button class="modal-delete-btn" onclick="deleteCommitment('${id}');closeModalForce()">Delete</button>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('editCommitName').focus(), 300);
+}
+
+async function saveEditCommitment(id) {
+  const item = allCommitments.find(c => c.id === id);
+  if (!item) return;
+  item.name = document.getElementById('editCommitName').value.trim() || item.name;
+  item.amount = parseFloat(document.getElementById('editCommitAmount').value) || item.amount;
+  item.dueDate = document.getElementById('editCommitDue').value.trim() || null;
+  await dbPut('commitments', item);
+  closeModalForce();
+  showToast('Updated');
+  renderCurrentTab();
 }
 
 async function categorizeItem(txId, catId) {
@@ -1352,119 +1383,148 @@ function parseTNGStatement(text) {
   const results = [];
   const lines = text.split('\n').map(l => l.trim()).filter(l => l);
 
-  // Log raw text to console for debugging
-  console.log('=== TNG RAW TEXT (first 200 lines) ===');
-  lines.slice(0, 200).forEach((l, i) => console.log(`[${i}] ${l}`));
+  // Log first 100 lines for debugging
+  console.log('=== TNG RAW TEXT (first 100 lines) ===');
+  lines.slice(0, 100).forEach((l, i) => console.log(`[${i}] ${l}`));
 
-  // TNG transaction types to SKIP (not spending)
-  const skipTypes = ['reload', 'top up', 'top-up', 'transfer in', 'direct credit', 'go+ daily earning',
-    'go+ daily', 'cashback', 'refund', 'money packet received', 'received', 'bonus', 'reward',
-    'reversal', 'credit', 'interest'];
+  // TNG PDF is a table: Date | Status | Transaction Type | Reference+Description | Details | Amount | Balance
+  // The Description column has: "20260501101 Merchant Name 1000010000 TNGOW3MY1 71798987286 409"
+  // We need to extract "Merchant Name" from that mess.
 
-  // Noise lines to ignore when looking for descriptions
-  const noisePat = /^(page|date|time|description|amount|balance|transaction|no\.|ref|reference|total|statement|e-?wallet|touch.*go|tng|generated|print|period|opening|closing|\d{10,}|[a-f0-9]{20,})/i;
-  const isNoise = (s) => !s || s.length < 3 || noisePat.test(s) || /^\d+$/.test(s) || /^[\-\+\.\s]+$/.test(s);
+  // Transaction types that are SPENDING
+  const spendingTxTypes = ['duitnow qr', 'rfid payment', 'ewallet cash out', 'bill payment',
+    'pay bill', 'quick pay', 'payment', 'duitnow transfer'];
+  // Transaction types to SKIP
+  const skipTxTypes = ['reload', 'transfer to wallet', 'receive from wallet', 'go+',
+    'quick reload', 'credit / debit card'];
 
-  // Helper: check if a line is purely a date
-  const isDateLine = (s) => /^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/.test(s) ||
-    /^\d{1,2}\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}$/i.test(s);
+  // System codes in the Description column to strip
+  const systemCodes = ['TNGOW3MY1', 'TNGOW3MY', '1000010000', '10000010000'];
 
-  // Helper: check if a line is purely an amount
-  const isAmountLine = (s) => /^[-\(]?\s*RM\s*[\d,]+\.?\d*\s*\)?$/i.test(s);
-
-  // Helper: extract date from a string
-  function extractDate(s) {
-    let m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
-    if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
-    m = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2})/);
-    if (m) { const yr = parseInt(m[3]) > 50 ? '19'+m[3] : '20'+m[3]; return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
-    m = s.match(/(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})/i);
-    if (m) { const months={jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'}; return `${m[3]}-${months[m[2].toLowerCase()]}-${m[1].padStart(2,'0')}`; }
-    return null;
+  // Helper: extract merchant name from TNG description field
+  function extractMerchant(rawDesc) {
+    if (!rawDesc) return '';
+    let d = rawDesc;
+    // Remove leading reference number (starts with 2026... or similar long digits)
+    d = d.replace(/^\d{10,}\s*/, '');
+    // Remove system codes
+    systemCodes.forEach(code => { d = d.replace(new RegExp(code, 'gi'), ''); });
+    // Remove long number sequences (reference IDs, wallet IDs)
+    d = d.replace(/\b\d{8,}\b/g, '');
+    // Remove date/time patterns embedded in description
+    d = d.replace(/\d{1,2}\/\d{1,2}\/\d{4}\s*\d{1,2}:\d{2}\s*(AM|PM)?/gi, '');
+    // Remove "Quick Reload Payment (via GO+..." pattern
+    d = d.replace(/Quick Reload Payment.*$/i, '');
+    d = d.replace(/Via eWallet to GO\+.*$/i, '');
+    // Remove trailing short numbers (sequence numbers like "409", "235")
+    d = d.replace(/\s+\d{1,4}\s*$/, '');
+    // Clean up whitespace and punctuation
+    d = d.replace(/\s+/g, ' ').replace(/^\W+|\W+$/g, '').trim();
+    return d;
   }
 
-  // Helper: clean a candidate description
-  function cleanDesc(s) {
-    if (!s) return '';
-    let d = s;
-    d = d.replace(/[-\(]?\s*RM\s*[\d,]+\.?\d*\s*\)?/gi, '');
-    d = d.replace(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/g, '');
-    d = d.replace(/\d{1,2}\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+\d{4}/gi, '');
-    d = d.replace(/\d{1,2}:\d{2}\s*(AM|PM|am|pm)?/g, '');
-    d = d.replace(/^(transaction|txn|ref|reference|trx)\s*:?\s*/i, '');
-    d = d.replace(/^\W+|\W+$/g, '');
-    return d.trim();
+  // Helper: extract date
+  function extractDate(s) {
+    let m = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) return `${m[3]}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`;
+    m = s.match(/(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s+(\d{4})/i);
+    if (m) {
+      const months={jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',jul:'07',aug:'08',sep:'09',oct:'10',nov:'11',dec:'12'};
+      return `${m[3]}-${months[m[2].toLowerCase()]}-${m[1].padStart(2,'0')}`;
+    }
+    return null;
   }
 
   let currentDate = '';
 
+  // Strategy: for each line with an RM amount, gather the full context
+  // (the line itself + nearby lines that are part of the same table row)
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
 
-    // Track dates
+    // Track dates from standalone date lines
     const lineDate = extractDate(line);
-    if (lineDate && (isDateLine(line) || line.length < 20)) {
+    if (lineDate && line.length < 15) {
       currentDate = lineDate;
+      continue;
     }
 
-    // Find amounts
-    const amountMatch = line.match(/[-\(]?\s*RM\s*([\d,]+\.?\d*)\s*\)?/i);
-    if (!amountMatch) continue;
+    // Find lines with RM amounts
+    const amountMatches = line.match(/RM\s*([\d,]+\.\d{2})/gi);
+    if (!amountMatches) continue;
 
-    const amount = parseFloat(amountMatch[1].replace(/,/g, ''));
+    // TNG table rows typically have two RM amounts: Amount and Wallet Balance
+    // The first RM amount is the transaction amount
+    const firstAmount = amountMatches[0].match(/RM\s*([\d,]+\.\d{2})/i);
+    if (!firstAmount) continue;
+    const amount = parseFloat(firstAmount[1].replace(/,/g, ''));
     if (!amount || amount <= 0) continue;
 
-    // Build description from context: scan up to 5 lines before and 3 lines after
-    let description = cleanDesc(line);
-    let txDate = lineDate || currentDate;
-    let contextLines = [];
-
-    // Look backwards for description candidates
-    for (let b = 1; b <= 5 && i - b >= 0; b++) {
-      const prev = lines[i - b];
-      if (isAmountLine(prev)) break; // hit another amount = stop
-      const cleaned = cleanDesc(prev);
-      if (!isNoise(cleaned) && cleaned.length > 2 && cleaned !== 'RM') {
-        contextLines.unshift(cleaned);
-      }
-      const pd = extractDate(prev);
-      if (pd && !txDate) txDate = pd;
-      if (pd) break; // date usually marks the start of a transaction block
-    }
-
-    // Look forward for description candidates
-    for (let f = 1; f <= 3 && i + f < lines.length; f++) {
+    // Build the full context: this line + up to 4 lines below (multi-line rows in the table)
+    let fullRow = line;
+    for (let f = 1; f <= 4 && i + f < lines.length; f++) {
       const next = lines[i + f];
-      if (isAmountLine(next)) break;
-      if (extractDate(next) && isDateLine(next)) break;
-      const cleaned = cleanDesc(next);
-      if (!isNoise(cleaned) && cleaned.length > 2 && cleaned !== 'RM') {
-        contextLines.push(cleaned);
-      }
+      // Stop if we hit another line with RM amounts (next row)
+      if (/RM\s*[\d,]+\.\d{2}/i.test(next)) break;
+      // Stop if it looks like a new date row
+      if (extractDate(next) && next.length < 15) break;
+      fullRow += ' ' + next;
     }
 
-    // Use context if main description is weak
-    if (!description || description === 'RM' || description.length < 3) {
-      description = contextLines.join(' — ') || 'TNG Transaction';
-    } else if (contextLines.length > 0) {
-      // Append context for richer description
-      const extra = contextLines.filter(c => c !== description).join(' — ');
-      if (extra) description = description + ' — ' + extra;
+    // Extract date from the row
+    const rowDate = extractDate(fullRow) || currentDate;
+    if (lineDate) currentDate = lineDate;
+
+    // Determine transaction type
+    const lowerRow = fullRow.toLowerCase();
+
+    // Check if this is a skip type
+    const isSkipType = skipTxTypes.some(t => lowerRow.includes(t));
+    const isSpendType = spendingTxTypes.some(t => lowerRow.includes(t));
+
+    // Skip reloads, top-ups, credits
+    if (isSkipType && !isSpendType) continue;
+    // If it's neither, still include it — let the user decide
+    // But skip obvious non-transactions (header rows, totals)
+    if (lowerRow.includes('wallet balance') && !isSpendType && !lowerRow.includes('payment')) continue;
+
+    // Extract merchant name
+    let description = '';
+
+    // Try to get the transaction type label first
+    let txTypeLabel = '';
+    if (lowerRow.includes('duitnow qr')) txTypeLabel = 'DuitNow QR';
+    else if (lowerRow.includes('rfid payment')) txTypeLabel = 'RFID Payment';
+    else if (lowerRow.includes('ewallet cash out')) txTypeLabel = 'eWallet Cash Out';
+    else if (lowerRow.includes('bill payment') || lowerRow.includes('pay bill')) txTypeLabel = 'Bill Payment';
+    else if (lowerRow.includes('duitnow transfer')) txTypeLabel = 'DuitNow Transfer';
+    else if (lowerRow.includes('payment')) txTypeLabel = 'Payment';
+
+    // Extract merchant from the full row text
+    // Remove known parts: date, status, tx type, amounts, details column
+    let descPart = fullRow;
+    // Remove dates
+    descPart = descPart.replace(/\d{1,2}\/\d{1,2}\/\d{4}/g, '');
+    // Remove "Success" status
+    descPart = descPart.replace(/\bSuccess\b/gi, '');
+    // Remove transaction type
+    descPart = descPart.replace(/\b(DuitNow QR|RFID Payment|eWallet Cash Out|Bill Payment|Pay Bill|Reload|Transfer to Wallet|Receive from Wallet|Quick Reload Payment)\b/gi, '');
+    // Remove all RM amounts
+    descPart = descPart.replace(/RM\s*[\d,]+\.?\d*/gi, '');
+    // Now extract merchant name
+    description = extractMerchant(descPart);
+
+    // If description is too short or empty, use the transaction type as fallback
+    if (!description || description.length < 2) {
+      description = txTypeLabel || 'TNG Transaction';
+    } else if (txTypeLabel && !description.toLowerCase().includes(txTypeLabel.toLowerCase().split(' ')[0])) {
+      // Prepend the tx type for context, e.g. "RFID: PLUS - TANGKAK"
+      description = txTypeLabel + ': ' + description;
     }
-
-    // Final cleanup
-    description = description.substring(0, 100);
-
-    // Determine if this is spending or skip
-    const lowerAll = (description + ' ' + line + ' ' + contextLines.join(' ')).toLowerCase();
-    const isSkip = skipTypes.some(t => lowerAll.includes(t));
-    const isDebit = /[-\(]\s*RM/i.test(line);
-
-    if (isSkip && !isDebit) continue;
 
     results.push({
-      date: txDate || '',
-      description,
+      date: rowDate || '',
+      description: description.substring(0, 100),
       amount,
       matched: false,
       matchedTxId: null,
@@ -1474,7 +1534,7 @@ function parseTNGStatement(text) {
     });
   }
 
-  // Deduplicate — but allow same amount+date if descriptions differ
+  // Deduplicate
   const seen = new Set();
   return results.filter(r => {
     const key = `${r.date}_${r.amount}_${r.description}`;
