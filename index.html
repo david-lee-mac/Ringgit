@@ -1733,12 +1733,12 @@ function renderReconcileResults(container) {
 
 function reconShowCategories(idx) {
   const actionsDiv = document.getElementById(`recon-actions-${idx}`);
-  const cats = Object.entries(CATEGORIES).filter(([k]) => k !== 'income');
+  const cats = CATEGORIES.filter(c => c.id !== 'income' && c.id !== 'uncategorized');
   actionsDiv.innerHTML = `
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
-      ${cats.map(([key, cat]) => `
+      ${cats.map(c => `
         <button class="recon-action-btn add" style="font-size:13px;padding:6px 10px;"
-          onclick="reconAddToLog(${idx},'${key}')">${cat.icon} ${cat.label}</button>
+          onclick="reconAddToLog(${idx},'${c.id}')">${c.emoji} ${c.label}</button>
       `).join('')}
     </div>
   `;
@@ -1755,7 +1755,8 @@ async function reconAddToLog(idx, category) {
   await dbPut('transactions', entry);
   allTransactions.push(entry);
   r.logged = true;
-  showToast(`RM${r.amount.toFixed(2)} logged as ${CATEGORIES[category].label}`);
+  const catObj = CATEGORIES.find(c => c.id === category);
+  showToast(`RM${r.amount.toFixed(2)} logged as ${catObj ? catObj.label : category}`);
   renderReconcileResults(document.getElementById('reconContent'));
 }
 
