@@ -22,9 +22,19 @@ self.addEventListener('activate', (e) => {
   self.clients.claim();
 });
 
-// Fetch — serve from cache first, fallback to network
+// Fetch — network first, fall back to cache (so updates load immediately)
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((cached) => cached || fetch(e.request))
+    fetch(e.request)
+      .then((response) => {
+        // Got a fresh response — update the cache and return it
+        const clone = response.clone();
+        caches.open(CACHE_NAME).then((cache) => cache.put(e.request, clone));
+        return response;
+      })
+      .catch(() => {
+        // Offline — serve from cache
+        return caches.match(e.request);
+      })
   );
 });
