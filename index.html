@@ -4,35 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0c0c0f">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f5f4f0">
 <title>Ringgit — Money Discipline</title>
 <link rel="manifest" href="manifest.json">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 :root {
-  --bg: #0c0c0f;
-  --surface: #16161a;
-  --surface2: #242430;
-  --surface3: #2e2e3a;
-  --text: #ededef;
-  --text-dim: #72727e;
-  --text-muted: #4a4a56;
-  --accent: #7c5cfc;
-  --accent-light: #9b82ff;
-  --green: #34d399;
-  --red: #f87171;
-  --orange: #fbbf24;
-  --teal: #2dd4bf;
-  --pink: #f472b6;
-  --blue: #60a5fa;
-  --purple: #a78bfa;
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --surface2: #eeece6;
+  --surface3: #e2dfd7;
+  --text: #1c1b18;
+  --text-dim: #7a7870;
+  --text-muted: #b0ada4;
+  --accent: #c0392b;
+  --accent-light: #e05252;
+  --green: #1a9e6e;
+  --red: #c0392b;
+  --orange: #d4800a;
+  --teal: #0d8a7a;
+  --pink: #c2418c;
+  --blue: #2563eb;
+  --purple: #7c3aed;
   --radius: 16px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
 }
 
 body {
@@ -45,6 +47,7 @@ body {
   position: fixed;
   width: 100%;
   height: 100%;
+  -webkit-font-smoothing: antialiased;
 }
 
 .app {
@@ -56,19 +59,20 @@ body {
 }
 
 .app-header {
-  padding: 12px 20px 8px;
+  padding: 12px 20px 10px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-bottom: 1px solid var(--surface3);
+  background: var(--bg);
 }
 
 .app-title {
-  font-size: 20px;
-  font-weight: 700;
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 22px;
+  font-weight: 400;
   letter-spacing: -0.3px;
-  background: linear-gradient(135deg, var(--accent-light), var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: var(--text);
 }
 .app-month { font-size: 13px; color: var(--text-dim); font-weight: 500; }
 
@@ -87,9 +91,10 @@ body {
   align-items: center;
   padding: 6px 0 calc(6px + var(--safe-bottom));
   background: var(--surface);
-  border-top: 1px solid rgba(255,255,255,0.04);
+  border-top: 1px solid var(--surface3);
   position: relative;
   z-index: 100;
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
 }
 
 .tab-btn {
@@ -112,13 +117,13 @@ body {
 }
 .fab-btn {
   width: 52px; height: 52px; border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  background: var(--accent);
   border: none; color: white; font-size: 26px; font-weight: 300;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 20px rgba(124,92,252,0.4);
+  box-shadow: 0 4px 20px rgba(192,57,43,0.35);
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.fab-btn:active { transform: scale(0.92); box-shadow: 0 2px 10px rgba(124,92,252,0.3); }
+.fab-btn:active { transform: scale(0.92); box-shadow: 0 2px 10px rgba(192,57,43,0.2); }
 
 .tab-badge {
   position: absolute; top: 0; right: 8px;
@@ -134,7 +139,8 @@ body {
   border-radius: var(--radius);
   padding: 16px;
   margin-bottom: 12px;
-  border: 1px solid rgba(255,255,255,0.03);
+  border: 1px solid var(--surface3);
+  box-shadow: var(--shadow-sm);
 }
 .card-title {
   font-size: 12px; font-weight: 600; color: var(--text-dim);
@@ -143,17 +149,23 @@ body {
 
 /* ── DASHBOARD TAB ── */
 .dash-hero { text-align: center; padding: 8px 0 4px; }
-.dash-balance { font-size: 36px; font-weight: 700; letter-spacing: -1.5px; }
-.dash-balance.positive { color: var(--green); }
+.dash-balance {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: 42px;
+  font-weight: 400;
+  letter-spacing: -1px;
+}
+.dash-balance.positive { color: var(--text); }
 .dash-balance.negative { color: var(--red); }
-.dash-label { font-size: 13px; color: var(--text-dim); margin-top: 2px; font-weight: 500; }
+.dash-label { font-size: 12px; color: var(--text-dim); margin-top: 2px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.6px; }
 
 .dash-flow {
   display: flex; gap: 12px; justify-content: center; margin-top: 14px;
 }
 .dash-flow-card {
   flex: 1; background: var(--surface); border-radius: 14px; padding: 14px;
-  text-align: center; border: 1px solid rgba(255,255,255,0.03);
+  text-align: center; border: 1px solid var(--surface3);
+  box-shadow: var(--shadow-sm);
 }
 .dash-flow-icon { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
 .dash-flow-icon.inc { color: var(--green); }
@@ -203,7 +215,7 @@ body {
 .due-alert-item .due-days { font-size: 11px; opacity: 0.8; }
 
 /* ── LOG (Bottom Sheet) ── */
-.log-type-toggle { display: flex; background: var(--surface2); border-radius: 10px; padding: 3px; margin-bottom: 8px; }
+.log-type-toggle { display: flex; background: var(--surface2); border-radius: 10px; padding: 3px; margin-bottom: 8px; border: 1px solid var(--surface3); }
 .log-type-btn {
   flex: 1; padding: 8px; border: none; border-radius: 8px;
   font-size: 14px; font-weight: 600; cursor: pointer;
@@ -227,14 +239,14 @@ body {
   border-radius: 10px; padding: 11px 14px; color: var(--text);
   font-size: 14px; font-family: inherit; outline: none; margin-bottom: 8px; transition: border-color 0.2s;
 }
-.desc-input:focus { border-color: var(--accent); }
+.desc-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(192,57,43,0.1); }
 .desc-input::placeholder { color: var(--text-muted); }
 
 .date-input-compact {
   background: var(--surface2); border: 1px solid var(--surface3);
   border-radius: 10px; padding: 11px 12px; color: var(--text);
   font-size: 13px; font-family: inherit; outline: none; -webkit-appearance: none;
-  color-scheme: dark; width: 125px; flex-shrink: 0;
+  color-scheme: light; width: 125px; flex-shrink: 0;
 }
 .date-input-compact:focus { border-color: var(--accent); }
 
@@ -258,15 +270,18 @@ body {
 
 .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 4px 0; }
 .numpad-btn {
-  background: var(--surface2); border: none; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--surface3); border-radius: 10px;
   color: var(--text); font-size: 20px; font-weight: 500; padding: 11px;
   font-family: inherit; cursor: pointer; transition: all 0.1s;
   -webkit-user-select: none; user-select: none;
+  box-shadow: var(--shadow-sm);
 }
-.numpad-btn:active { background: var(--surface3); transform: scale(0.96); }
+.numpad-btn:active { background: var(--surface2); transform: scale(0.96); box-shadow: none; }
 .numpad-btn.action {
-  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  background: var(--accent);
+  border-color: var(--accent);
   color: white; font-size: 14px; font-weight: 700;
+  box-shadow: 0 3px 12px rgba(192,57,43,0.25);
 }
 .numpad-btn.action:active { opacity: 0.85; }
 .numpad-btn.backspace { font-size: 16px; }
@@ -275,14 +290,14 @@ body {
 .plan-summary { display: flex; gap: 10px; margin-bottom: 16px; }
 .plan-stat {
   flex: 1; background: var(--surface); border-radius: var(--radius); padding: 14px;
-  text-align: center; border: 1px solid rgba(255,255,255,0.03);
+  text-align: center; border: 1px solid var(--surface3); box-shadow: var(--shadow-sm);
 }
 .plan-stat-value { font-size: 18px; font-weight: 700; }
 .plan-stat-label { font-size: 10px; color: var(--text-dim); margin-top: 4px; font-weight: 600; letter-spacing: 0.3px; }
 
 .plan-item {
   display: flex; align-items: center; gap: 12px; padding: 13px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--surface2);
 }
 .plan-item:last-child { border-bottom: none; }
 
@@ -334,10 +349,10 @@ body {
 }
 .ledger-item {
   display: flex; align-items: center; gap: 12px; padding: 11px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--surface2);
   cursor: pointer; transition: background 0.15s; border-radius: 8px;
 }
-.ledger-item:active { background: rgba(255,255,255,0.03); }
+.ledger-item:active { background: var(--surface2); }
 .ledger-emoji { font-size: 18px; width: 34px; text-align: center; }
 .ledger-info { flex: 1; }
 .ledger-desc { font-size: 13px; font-weight: 500; }
@@ -389,7 +404,8 @@ body {
 .recon-summary { display: flex; gap: 10px; margin-bottom: 16px; }
 .recon-stat {
   flex: 1; background: var(--surface); border-radius: 10px;
-  padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.03);
+  padding: 12px; text-align: center; border: 1px solid var(--surface3);
+  box-shadow: var(--shadow-sm);
 }
 .recon-stat-val { font-size: 20px; font-weight: 700; }
 .recon-stat-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; letter-spacing: 0.3px; }
@@ -406,19 +422,20 @@ body {
 
 /* ── Modals ── */
 .modal-overlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+  position: fixed; inset: 0; background: rgba(28,27,24,0.45);
   z-index: 200; display: flex; align-items: flex-end;
   justify-content: center; opacity: 0; pointer-events: none;
-  transition: opacity 0.25s; backdrop-filter: blur(4px);
+  transition: opacity 0.25s; backdrop-filter: blur(6px);
 }
 .modal-overlay.show { opacity: 1; pointer-events: auto; }
 
 .modal {
-  background: var(--surface); border-radius: 20px 20px 0 0;
+  background: var(--bg); border-radius: 20px 20px 0 0;
   padding: 20px 20px calc(20px + var(--safe-bottom));
   width: 100%; max-width: 500px;
   transform: translateY(100%); transition: transform 0.3s ease;
   max-height: 90vh; overflow-y: auto;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.12);
 }
 .modal-overlay.show .modal { transform: translateY(0); }
 
@@ -426,20 +443,21 @@ body {
 .modal-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
 
 .modal-input {
-  width: 100%; background: var(--bg); border: 1px solid var(--surface3);
+  width: 100%; background: var(--surface); border: 1px solid var(--surface3);
   border-radius: 10px; padding: 13px 16px; color: var(--text);
   font-size: 15px; font-family: inherit; outline: none; margin-bottom: 10px;
 }
-.modal-input:focus { border-color: var(--accent); }
+.modal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(192,57,43,0.1); }
 .modal-input::placeholder { color: var(--text-muted); }
 
 .modal-row { display: flex; gap: 10px; }
 .modal-row .modal-input { flex: 1; }
 
 .modal-save-btn {
-  width: 100%; padding: 15px; background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  width: 100%; padding: 15px; background: var(--accent);
   color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
   font-family: inherit; cursor: pointer; margin-top: 8px;
+  box-shadow: 0 3px 12px rgba(192,57,43,0.25);
 }
 .modal-save-btn:active { opacity: 0.85; }
 
@@ -478,11 +496,11 @@ body {
 .toast {
   position: fixed; bottom: 100px; left: 50%;
   transform: translateX(-50%) translateY(20px);
-  background: var(--surface2); color: var(--text);
+  background: var(--text); color: var(--bg);
   padding: 12px 24px; border-radius: 25px;
   font-size: 13px; font-weight: 500; opacity: 0;
   transition: all 0.3s; z-index: 300; pointer-events: none; white-space: nowrap;
-  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -491,7 +509,7 @@ body {
   position: fixed; inset: 0; background: var(--bg);
   z-index: 150; overflow-y: auto; -webkit-overflow-scrolling: touch;
   padding: var(--safe-top) 16px calc(20px + var(--safe-bottom));
-  display: none;
+  display: none; color-scheme: light;
 }
 .full-overlay.show { display: block; }
 .full-overlay-header {
@@ -541,7 +559,7 @@ body {
 /* Settings items */
 .settings-item {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+  padding: 14px 0; border-bottom: 1px solid var(--surface2);
 }
 .settings-item:last-child { border-bottom: none; }
 .settings-item-label { font-size: 14px; font-weight: 500; }
@@ -1655,12 +1673,12 @@ async function parsePDF(file) {
 
   // Detect statement type
   const isTNG = /touch.*n.*go|tng.*wallet|tng.*transaction|e-?wallet.*transaction/i.test(allTextSimple);
-  const isUOB = /uob|united overseas bank/i.test(allTextSimple) && /credit card|card statement/i.test(allTextSimple);
+  const isUOB = /uob|united overseas bank/i.test(allTextSimple) && /statement of account|card centre/i.test(allTextSimple);
 
   if (isTNG) {
     return parseTNGTable(allItems);
   } else if (isUOB) {
-    return parseUOBStatement(allTextSimple);
+    return parseUOBStatement(allItems);
   } else {
     return parseGenericPDFStatement(allTextSimple);
   }
@@ -1762,78 +1780,120 @@ function parseTNGTable(items) {
   });
 }
 
-// ── UOB Credit Card Statement Parser ──
-function parseUOBStatement(text) {
+// ── UOB Credit Card Statement Parser (positional) ──
+// UOB statements have 4 separate text-box columns per row:
+//   Date (x≈40–110)  |  Description (x≈120–275)  |  Location (x≈275–430)  |  Amount (x≈490–560)
+// Items sharing the same Y coordinate (±10px) belong to the same transaction row.
+// Note: allItems use page-relative Y from top (pageHeight - pdf.y) and page-separated X.
+function parseUOBStatement(allItems) {
   const results = [];
-  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
 
-  // UOB format: DD MMM   DESCRIPTION   LOCATION   COUNTRY   AMOUNT [CR]
-  // Months: JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC
-  const monthMap = { JAN: '01', FEB: '02', MAR: '03', APR: '04', MAY: '05', JUN: '06',
-    JUL: '07', AUG: '08', SEP: '09', OCT: '10', NOV: '11', DEC: '12' };
+  const monthMap = { JAN:'01', FEB:'02', MAR:'03', APR:'04', MAY:'05', JUN:'06',
+                     JUL:'07', AUG:'08', SEP:'09', OCT:'10', NOV:'11', DEC:'12' };
 
-  // Find statement year from "STATEMENT DATE" or date patterns
+  // UOB page width ≈ 595pt. Column X boundaries (within each page's X space):
+  // Each page is offset by (page-1)*10000 in allItems, so we use x % 10000 to get page-local x.
+  const COL_DATE_MIN   = 40,  COL_DATE_MAX   = 115;
+  const COL_DESC_MIN   = 115, COL_DESC_MAX   = 280;
+  const COL_LOC_MIN    = 280, COL_LOC_MAX    = 440;
+  const COL_AMT_MIN    = 480, COL_AMT_MAX    = 575;
+
+  // Detect statement year from items that look like "03 MAY 26" or "03 MAY 2026"
   let stmtYear = new Date().getFullYear();
-  for (const line of lines) {
-    const stmtDateMatch = line.match(/(\d{1,2})\s+(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s+(\d{2,4})/i);
-    if (stmtDateMatch) {
-      const yr = stmtDateMatch[3];
+  for (const item of allItems) {
+    const m = item.text.match(/(\d{1,2})\s+(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s+(\d{2,4})/i);
+    if (m) {
+      const yr = m[3];
       stmtYear = yr.length === 2 ? 2000 + parseInt(yr) : parseInt(yr);
       break;
     }
   }
 
-  // Skip lines that are clearly not transactions
-  const skipPatterns = [
-    /statement date/i, /payment due/i, /credit limit/i, /available/i,
-    /minimum payment/i, /previous balance/i, /new balance/i, /total/i,
-    /page \d/i, /uob/i, /card number/i, /^date\s+description/i,
-    /finance charge/i, /annual fee/i, /sub-total/i
-  ];
-
-  for (const line of lines) {
-    // Skip non-transaction lines
-    if (skipPatterns.some(p => p.test(line))) continue;
-
-    // Match: DD MMM ... AMOUNT [CR]
-    const txMatch = line.match(/^(\d{1,2})\s+(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s+(.+?)\s+([\d,]+\.\d{2})\s*(CR)?$/i);
-    if (!txMatch) continue;
-
-    const day = txMatch[1].padStart(2, '0');
-    const month = monthMap[txMatch[2].toUpperCase()];
-    if (!month) continue;
-
-    const date = `${stmtYear}-${month}-${day}`;
-    const rawDesc = txMatch[3].trim();
-    const amount = parseFloat(txMatch[4].replace(/,/g, ''));
-    const isCredit = !!txMatch[5];
-
-    if (!amount || amount <= 0) continue;
-
-    // Clean description — remove location/country codes at end
-    let description = rawDesc;
-    // Remove trailing country code (2 chars like MY, SG, IE, US)
-    description = description.replace(/\s+[A-Z]{2}$/, '').trim();
-    // Remove trailing city/location (common pattern: KUALA LUMPUR, PETALING JAYA, etc.)
-    // Keep it for context but clean up excessive whitespace
-    description = description.replace(/\s{2,}/g, ' ').trim();
-
-    if (description.length < 2) continue;
-
-    results.push({
-      date,
-      description: description.substring(0, 80),
-      amount,
-      matched: false,
-      matchedTxId: null,
-      skipped: false,
-      logged: false,
-      source: 'uob',
-      isCredit,
-    });
+  // Group items by page, then by Y row (±10px)
+  // First separate pages back out
+  const pages = {};
+  for (const item of allItems) {
+    const pageIdx = Math.floor(item.x / 10000);
+    const localX = item.x % 10000;
+    if (!pages[pageIdx]) pages[pageIdx] = [];
+    pages[pageIdx].push({ text: item.text, x: localX, y: item.y });
   }
 
-  return results;
+  for (const pageItems of Object.values(pages)) {
+    // Group by Y row — items within 10px Y of each other are on the same row
+    pageItems.sort((a, b) => a.y - b.y || a.x - b.x);
+    const rows = [];
+    let currentRow = [pageItems[0]];
+
+    for (let i = 1; i < pageItems.length; i++) {
+      if (Math.abs(pageItems[i].y - currentRow[0].y) <= 10) {
+        currentRow.push(pageItems[i]);
+      } else {
+        rows.push(currentRow);
+        currentRow = [pageItems[i]];
+      }
+    }
+    if (currentRow.length) rows.push(currentRow);
+
+    for (const row of rows) {
+      // Find items in each column
+      const dateItems   = row.filter(i => i.x >= COL_DATE_MIN && i.x < COL_DATE_MAX);
+      const descItems   = row.filter(i => i.x >= COL_DESC_MIN && i.x < COL_DESC_MAX);
+      const amtItems    = row.filter(i => i.x >= COL_AMT_MIN  && i.x < COL_AMT_MAX);
+
+      if (!dateItems.length || !amtItems.length) continue;
+
+      // Date must be "DD MMM" pattern
+      const dateText = dateItems.map(i => i.text).join(' ');
+      const dateMatch = dateText.match(/(\d{1,2})\s+(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)/i);
+      if (!dateMatch) continue;
+
+      const month = monthMap[dateMatch[2].toUpperCase()];
+      if (!month) continue;
+      const date = `${stmtYear}-${month}-${dateMatch[1].padStart(2,'0')}`;
+
+      // Amount — may contain "CR" for credits
+      const amtText = amtItems.map(i => i.text).join(' ');
+      const amtMatch = amtText.match(/([\d,]+\.\d{2})/);
+      if (!amtMatch) continue;
+      const amount = parseFloat(amtMatch[1].replace(/,/g, ''));
+      if (!amount || amount <= 0) continue;
+
+      const isCredit = /CR/i.test(amtText);
+
+      // Description — clean up
+      const description = descItems.map(i => i.text).join(' ').trim()
+        .replace(/\s{2,}/g, ' ').substring(0, 80);
+
+      if (!description || description.length < 2) continue;
+
+      // Skip summary rows
+      if (/sub-total|minimum payment|end of statement/i.test(description)) continue;
+      // Skip payment/rebate rows (credits from bank)
+      if (/payment rec|cash rebate|credit limit|previous bal/i.test(description)) continue;
+
+      results.push({
+        date,
+        description,
+        amount,
+        matched: false,
+        matchedTxId: null,
+        skipped: false,
+        logged: false,
+        source: 'uob',
+        isCredit,
+      });
+    }
+  }
+
+  // Deduplicate
+  const seen = new Set();
+  return results.filter(r => {
+    const key = `${r.date}_${r.amount}_${r.description}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 // ── Generic PDF Parser ──
