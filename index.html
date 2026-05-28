@@ -1360,8 +1360,8 @@ async function parsePDF(file) {
       if (!item.str.trim()) return;
       allItems.push({
         text: item.str.trim(),
-        x: Math.round(item.transform[4]),
-        y: Math.round(pageHeight * (i - 1) + (pageHeight - item.transform[5])), // normalize Y across pages (top=0)
+        x: Math.round(item.transform[4]) + (i - 1) * 10000, // separate pages in X space
+        y: Math.round(pageHeight - item.transform[5]), // page-relative Y (top=0)
         page: i,
       });
     });
@@ -1389,171 +1389,118 @@ async function parsePDF(file) {
   }
 }
 
-// Parse TNG using positioned text items to reconstruct table rows properly
+// Parse TNG using positioned text items — TABLE IS TRANSPOSED (each transaction = a column)
+// Items with similar X = same transaction. Y position = which field (Date, Type, Description, Amount, etc.)
 function parseTNGTable(items) {
   const results = [];
 
-  // Step 1: Group items into rows by Y proximity (items within 5px Y = same row)
-  items.sort((a, b) => a.y - b.y || a.x - b.x);
-  const rows = [];
-  let currentRow = [items[0]];
+  // Step 1: Find field Y positions from header items
+  // Headers are at consistent Y positions: Date≈822, Status≈762, Type≈702, Ref≈612, Desc≈547, Details≈382, Amount≈166-184, Balance≈60-92
+  // We detect them dynamically from the first occurrence of header labels
+  const fieldRanges = {
+    date:    { min: 780, max: 850 },
+    status:  { min: 730, max: 780 },
+    type:    { min: 670, max: 730 },
+    ref:     { min: 580, max: 670 },
+    desc:    { min: 480, max: 580 },
+    details: { min: 300, max: 480 },
+    amount:  { min: 130, max: 300 },
+    balance: { min: 0,   max: 130 },
+  };
+
+  // Step 2: Group items into transaction columns by X proximity
+  // Each transaction column spans ~30px in X (multi-line cells offset by ~12px)
+  items.sort((a, b) => a.x - b.x || a.y - b.y);
+  const columns = [];
+  let currentCol = [items[0]];
 
   for (let i = 1; i < items.length; i++) {
-    if (Math.abs(items[i].y - currentRow[0].y) <= 10) {
-      currentRow.push(items[i]);
+    // Items within 30px X belong to the same transaction column
+    if (Math.abs(items[i].x - currentCol[0].x) <= 30) {
+      currentCol.push(items[i]);
     } else {
-      if (currentRow.length > 0) rows.push(currentRow);
-      currentRow = [items[i]];
+      if (currentCol.length > 0) columns.push(currentCol);
+      currentCol = [items[i]];
     }
   }
-  if (currentRow.length > 0) rows.push(currentRow);
+  if (currentCol.length > 0) columns.push(currentCol);
 
-  // Step 2: For each row, sort items left-to-right and join into a single string
-  // Also identify column positions by looking at the header row
-  let colPositions = null;
-  const tableRows = [];
+  console.log('=== TNG COLUMN PARSER: found', columns.length, 'columns ===');
 
-  for (const row of rows) {
-    row.sort((a, b) => a.x - b.x);
-    const rowText = row.map(r => r.text).join(' ');
-
-    // Detect header row to find column X positions
-    if (/\bDate\b/.test(rowText) && /\bTransaction\s*Type\b/i.test(rowText) && /\bAmount\b/i.test(rowText)) {
-      colPositions = {};
-      for (const item of row) {
-        const t = item.text.toLowerCase();
-        if (t === 'date') colPositions.date = item.x;
-        if (t.includes('transaction') || t === 'type') colPositions.txType = colPositions.txType || item.x;
-        if (t === 'reference' || t === 'description') colPositions.desc = colPositions.desc || item.x;
-        if (t.includes('amount')) colPositions.amount = item.x;
-      }
-      continue;
-    }
-
-    // Keep rows that have a date or decimal amount (not just "RM" alone)
-    const hasDatePattern = /\d{1,2}\/\d{1,2}\/\d{4}/.test(rowText);
-    const hasAmount = /\d[\d,]*\.\d{2}/.test(rowText);
-    if (!hasDatePattern && !hasAmount) continue;
-
-    tableRows.push({ items: row, text: rowText });
-  }
-
-  console.log('=== TNG TABLE: found', tableRows.length, 'data rows, colPositions:', JSON.stringify(colPositions), '===');
-  console.log('=== Raw rows (first 5) ===');
-  rows.slice(0, 15).forEach((r, i) => console.log(`RAW[${i}] y=${r[0].y}`, r.map(x => `"${x.text}"@x${x.x}`).join(' | ')));
-  console.log('=== Data rows (first 10) ===');
-  tableRows.slice(0, 10).forEach((r, i) => console.log(`ROW[${i}]`, r.text));
-
-  // Step 3: Group multi-line table rows together
-  // A new table row starts when a line contains a date like "1/5/2026"
-  // Subsequent lines without a date belong to the same row
-  const groupedRows = [];
-  let current = null;
-
-  for (const row of tableRows) {
-    const hasDate = /\d{1,2}\/\d{1,2}\/\d{4}/.test(row.text);
-    if (hasDate) {
-      if (current) groupedRows.push(current);
-      current = { items: [...row.items], text: row.text };
-    } else if (current) {
-      current.items.push(...row.items);
-      current.text += ' ' + row.text;
-    }
-  }
-  if (current) groupedRows.push(current);
-
-  console.log('=== TNG: grouped into', groupedRows.length, 'transaction rows ===');
-
-  // Transaction types to SKIP
+  // Transaction types to SKIP (not spending)
   const skipTypes = ['reload', 'transfer to wallet', 'receive from wallet',
-    'credit / debit card', 'quick reload'];
-  // Transaction types that are SPENDING
-  const spendTypes = ['duitnow qr', 'rfid payment', 'ewallet cash out', 'bill payment',
-    'pay bill', 'duitnow transfer', 'payment'];
+    'credit / debit card', 'quick reload', 'fund transfer',
+    'go+ cash in', 'go+ daily earnings', 'go+ cash out'];
 
-  // Step 4: Parse each grouped row
-  for (const row of groupedRows) {
-    const fullText = row.text;
-    const lower = fullText.toLowerCase();
+  // Step 3: Parse each column as a transaction
+  for (const col of columns) {
+    // Extract fields by Y position
+    let date = '', status = '', txType = '', desc = '', amount = 0;
 
-    // Extract date
-    const dateMatch = fullText.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-    const txDate = dateMatch ? `${dateMatch[3]}-${dateMatch[2].padStart(2,'0')}-${dateMatch[1].padStart(2,'0')}` : '';
+    const dateItems = [];
+    const typeItems = [];
+    const descItems = [];
+    const amountItems = [];
 
-    // Check transaction type
-    const isSkip = skipTypes.some(t => lower.includes(t));
-    const isSpend = spendTypes.some(t => lower.includes(t));
-    if (isSkip && !isSpend) continue;
-
-    // Extract amount — find RM values (handle "RM 500.00" or "RM" and "500.00" as separate items)
-    let amountMatches = fullText.match(/RM\s*([\d,]+\.\d{2})/gi);
-    if (!amountMatches || amountMatches.length === 0) {
-      // Fallback: look for standalone decimal numbers (pdf.js might split RM from number)
-      const nums = fullText.match(/\b(\d[\d,]*\.\d{2})\b/g);
-      if (nums && nums.length > 0) amountMatches = nums.map(n => 'RM' + n);
+    for (const item of col) {
+      const y = item.y;
+      if (y >= fieldRanges.date.min && y <= fieldRanges.date.max) dateItems.push(item.text);
+      else if (y >= fieldRanges.type.min && y < fieldRanges.type.max) typeItems.push(item.text);
+      else if (y >= fieldRanges.desc.min && y < fieldRanges.desc.max) descItems.push(item.text);
+      else if (y >= fieldRanges.amount.min && y < fieldRanges.amount.max) amountItems.push(item.text);
     }
-    if (!amountMatches || amountMatches.length === 0) continue;
-    const amountStr = amountMatches[0].match(/([\d,]+\.\d{2})/);
-    const amount = parseFloat(amountStr[1].replace(/,/g, ''));
+
+    // Parse date
+    const dateText = dateItems.join(' ');
+    const dateMatch = dateText.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (!dateMatch) continue; // Not a transaction column (header, footer, etc.)
+    date = `${dateMatch[3]}-${dateMatch[2].padStart(2,'0')}-${dateMatch[1].padStart(2,'0')}`;
+
+    // Parse transaction type (strip reference numbers that pdf.js sometimes merges in)
+    txType = typeItems.join(' ').trim().replace(/\d{10,}/g, '').trim();
+    const txTypeLower = txType.toLowerCase();
+
+    // Skip non-spending transactions
+    const isSkip = skipTypes.some(t => txTypeLower.includes(t));
+    if (isSkip) continue;
+    // Skip card reload (not real spending)
+    if (descItems.join(' ').toLowerCase().includes('card reload')) continue;
+
+    // Parse amount
+    const amountText = amountItems.join(' ');
+    const amtMatch = amountText.match(/([\d,]+\.\d{2})/);
+    if (!amtMatch) continue;
+    amount = parseFloat(amtMatch[1].replace(/,/g, ''));
     if (!amount || amount <= 0) continue;
 
-    // Determine tx type label
-    let txType = '';
-    if (lower.includes('duitnow qr')) txType = 'DuitNow QR';
-    else if (lower.includes('rfid payment')) txType = 'RFID';
-    else if (lower.includes('ewallet cash out')) txType = 'Cash Out';
-    else if (lower.includes('bill payment') || lower.includes('pay bill')) txType = 'Bill';
-    else if (lower.includes('duitnow transfer')) txType = 'Transfer';
+    // Parse description (merchant name) — this is the actual Description field from the PDF
+    desc = descItems.join(' ').trim();
+    // Clean minor noise from description
+    desc = desc.replace(/\(?\s*via GO\+[^)]*\)?/gi, '').replace(/GO\+/gi, '').trim();
+    desc = desc.replace(/\bvia eWallet to\b/gi, '').trim();
 
-    // Extract merchant name from the description column
-    // Strategy: remove all known noise from the full text, what remains is the merchant
-    let desc = fullText;
-    // Remove date
-    desc = desc.replace(/\d{1,2}\/\d{1,2}\/\d{4}/g, '');
-    // Remove time
-    desc = desc.replace(/\d{1,2}:\d{2}\s*(AM|PM)?/gi, '');
-    // Remove "Success"
-    desc = desc.replace(/\bSuccess\b/gi, '');
-    // Remove transaction types
-    desc = desc.replace(/\b(DuitNow QR|RFID Payment|eWallet Cash Out|Bill Payment|Pay Bill|Reload|Transfer to Wallet|Receive from Wallet|Quick Reload Payment|Fund Transfer|DuitNow Transfer)\b/gi, '');
-    // Remove all RM amounts and standalone RM
-    desc = desc.replace(/RM\s*[\d,]+\.?\d*/gi, '');
-    desc = desc.replace(/\bRM\b/gi, '');
-    // Remove system codes
-    desc = desc.replace(/TNGOW3MY\d*/gi, '');
-    desc = desc.replace(/\b1000001\d+\b/g, '');
-    desc = desc.replace(/\b10000010000\b/g, '');
-    // Remove long reference numbers (10+ digits)
-    desc = desc.replace(/\b\d{10,}\b/g, '');
-    // Remove medium reference numbers (7-9 digits) that are likely refs
-    desc = desc.replace(/\b\d{7,9}\b/g, '');
-    // Remove "via GO+" noise
-    desc = desc.replace(/\(?\s*via GO\+[^)]*\)?/gi, '');
-    desc = desc.replace(/GO\+/gi, '');
-    // Remove "Balance" and similar
-    desc = desc.replace(/\b(Balance|Wallet|Quick|Payment)\b/gi, '');
-    // Remove MY prefix codes
-    desc = desc.replace(/\bMY\d+\b/g, '');
-    // Remove leftover short numbers (1-4 digits standing alone)
-    desc = desc.replace(/\b\d{1,4}\b/g, '');
-    // Remove encoded strings (long alphanumeric)
-    desc = desc.replace(/[A-Za-z0-9+\/=]{20,}/g, '');
-    // Clean up
-    desc = desc.replace(/[()]/g, '').replace(/\s+/g, ' ').replace(/^\W+|\W+$/g, '').trim();
-    // Remove leftover single characters
-    desc = desc.split(/\s+/).filter(w => w.length > 1).join(' ').trim();
+    // Determine display type label
+    let typeLabel = '';
+    if (txTypeLower.includes('duitnow qr')) typeLabel = 'DuitNow QR';
+    else if (txTypeLower.includes('rfid payment')) typeLabel = 'RFID';
+    else if (txTypeLower.includes('ewallet cash out')) typeLabel = 'Cash Out';
+    else if (txTypeLower.includes('bill payment') || txTypeLower.includes('pay bill')) typeLabel = 'Bill';
+    else if (txTypeLower.includes('duitnow transfer')) typeLabel = 'Transfer';
+    else if (txTypeLower.includes('paydirect')) typeLabel = 'PayDirect';
+    else typeLabel = txType.replace(/\b\d{5,}\b/g, '').trim();
 
     // Build final description
-    console.log('=== TNG TX:', txDate, 'amt:', amount, 'type:', txType, 'desc after strip:', JSON.stringify(desc), '===');
-    let description = desc || txType || 'TNG Transaction';
-    if (txType && desc && desc.length > 1) {
-      description = txType + ': ' + desc;
-    } else if (txType && !desc) {
-      description = txType;
+    let description = '';
+    if (desc && desc.length > 1) {
+      description = typeLabel ? typeLabel + ': ' + desc : desc;
+    } else {
+      description = typeLabel || txType || 'TNG Transaction';
     }
 
+    console.log('=== TNG TX:', date, amount, typeLabel, '→', desc, '===');
+
     results.push({
-      date: txDate,
+      date,
       description: description.substring(0, 100),
       amount,
       matched: false,
