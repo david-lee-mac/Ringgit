@@ -5,33 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#09090b">
+<meta name="theme-color" content="#0c0c0f">
 <title>Ringgit — Money Discipline</title>
 <link rel="manifest" href="manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 :root {
-  --bg: #09090b;
-  --surface: #141418;
-  --surface2: #222228;
-  --text: #f0f0f2;
-  --text-dim: #6e6e7a;
-  --accent: #06d6a0;
-  --green: #06d6a0;
-  --red: #ef6461;
-  --orange: #f4a261;
-  --purple: #9b72f2;
-  --pink: #e87be0;
-  --yellow: #f0c040;
-  --radius: 14px;
+  --bg: #0c0c0f;
+  --surface: #16161a;
+  --surface2: #242430;
+  --surface3: #2e2e3a;
+  --text: #ededef;
+  --text-dim: #72727e;
+  --text-muted: #4a4a56;
+  --accent: #7c5cfc;
+  --accent-light: #9b82ff;
+  --green: #34d399;
+  --red: #f87171;
+  --orange: #fbbf24;
+  --teal: #2dd4bf;
+  --pink: #f472b6;
+  --blue: #60a5fa;
+  --purple: #a78bfa;
+  --radius: 16px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
   min-height: 100vh;
@@ -57,8 +62,15 @@ body {
   justify-content: space-between;
 }
 
-.app-title { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
-.app-month { font-size: 14px; color: var(--text-dim); font-weight: 500; }
+.app-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.app-month { font-size: 13px; color: var(--text-dim); font-weight: 500; }
 
 .tab-content {
   flex: 1;
@@ -68,26 +80,45 @@ body {
   padding: 0 16px 100px;
 }
 
-/* ── Bottom Tabs ── */
+/* ── Bottom Tab Bar ── */
 .tab-bar {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 8px 0 calc(8px + var(--safe-bottom));
+  padding: 6px 0 calc(6px + var(--safe-bottom));
   background: var(--surface);
-  border-top: 1px solid rgba(255,255,255,0.06);
+  border-top: 1px solid rgba(255,255,255,0.04);
   position: relative;
   z-index: 100;
 }
 
 .tab-btn {
-  display: flex; flex-direction: column; align-items: center; gap: 3px;
-  background: none; border: none; color: var(--text-dim);
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: none; border: none; color: var(--text-muted);
   font-size: 10px; font-weight: 600; padding: 4px 16px;
   cursor: pointer; transition: color 0.2s; position: relative;
+  letter-spacing: 0.3px;
 }
-.tab-btn.active { color: var(--accent); }
-.tab-btn svg { width: 24px; height: 24px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+.tab-btn.active { color: var(--accent-light); }
+.tab-btn svg { width: 22px; height: 22px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+
+/* Center FAB */
+.fab-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: -28px;
+}
+.fab-btn {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  border: none; color: white; font-size: 26px; font-weight: 300;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(124,92,252,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.fab-btn:active { transform: scale(0.92); box-shadow: 0 2px 10px rgba(124,92,252,0.3); }
 
 .tab-badge {
   position: absolute; top: 0; right: 8px;
@@ -98,54 +129,120 @@ body {
 }
 
 /* ── Cards ── */
-.card { background: var(--surface); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+.card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255,255,255,0.03);
+}
 .card-title {
-  font-size: 13px; font-weight: 600; color: var(--text-dim);
-  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+  font-size: 12px; font-weight: 600; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;
 }
 
-/* ── LOG TAB ── */
-.log-type-toggle { display: flex; background: var(--surface); border-radius: 10px; padding: 3px; margin-bottom: 8px; }
+/* ── DASHBOARD TAB ── */
+.dash-hero { text-align: center; padding: 8px 0 4px; }
+.dash-balance { font-size: 36px; font-weight: 700; letter-spacing: -1.5px; }
+.dash-balance.positive { color: var(--green); }
+.dash-balance.negative { color: var(--red); }
+.dash-label { font-size: 13px; color: var(--text-dim); margin-top: 2px; font-weight: 500; }
+
+.dash-flow {
+  display: flex; gap: 12px; justify-content: center; margin-top: 14px;
+}
+.dash-flow-card {
+  flex: 1; background: var(--surface); border-radius: 14px; padding: 14px;
+  text-align: center; border: 1px solid rgba(255,255,255,0.03);
+}
+.dash-flow-icon { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
+.dash-flow-icon.inc { color: var(--green); }
+.dash-flow-icon.exp { color: var(--red); }
+.dash-flow-val { font-size: 18px; font-weight: 700; }
+
+/* Donut chart */
+.donut-container { display: flex; justify-content: center; padding: 16px 0 8px; position: relative; }
+.donut-center {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  text-align: center;
+}
+.donut-center-amount { font-size: 18px; font-weight: 700; }
+.donut-center-label { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+/* Spending bar */
+.spending-bar-container { margin: 12px 0 4px; }
+.spending-bar { height: 6px; background: var(--surface2); border-radius: 3px; overflow: hidden; }
+.spending-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+.spending-bar-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-dim); margin-top: 5px; }
+
+/* Category items */
+.cat-item { display: flex; align-items: center; gap: 12px; padding: 10px 0; }
+.cat-emoji {
+  font-size: 20px; width: 38px; height: 38px;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface2); border-radius: 12px;
+}
+.cat-info { flex: 1; }
+.cat-name { font-size: 13px; font-weight: 600; }
+.cat-bar-bg { height: 3px; background: var(--surface2); border-radius: 2px; margin-top: 5px; overflow: hidden; }
+.cat-bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+.cat-amount { font-size: 14px; font-weight: 600; text-align: right; }
+.cat-percent { font-size: 10px; color: var(--text-dim); text-align: right; margin-top: 2px; }
+
+/* ── DUE DATE ALERTS ── */
+.due-alerts { margin-bottom: 12px; }
+.due-alert-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 12px 14px; border-radius: 12px; margin-bottom: 6px;
+  font-size: 13px; font-weight: 500;
+}
+.due-alert-item.urgent { background: rgba(248,113,113,0.12); color: var(--red); border: 1px solid rgba(248,113,113,0.15); }
+.due-alert-item.soon { background: rgba(251,191,36,0.10); color: var(--orange); border: 1px solid rgba(251,191,36,0.12); }
+.due-alert-item .due-name { flex: 1; }
+.due-alert-item .due-amount { font-weight: 700; }
+.due-alert-item .due-days { font-size: 11px; opacity: 0.8; }
+
+/* ── LOG (Bottom Sheet) ── */
+.log-type-toggle { display: flex; background: var(--surface2); border-radius: 10px; padding: 3px; margin-bottom: 8px; }
 .log-type-btn {
   flex: 1; padding: 8px; border: none; border-radius: 8px;
   font-size: 14px; font-weight: 600; cursor: pointer;
   transition: all 0.2s; background: transparent; color: var(--text-dim);
+  font-family: inherit;
 }
-.log-type-btn.active-expense { background: rgba(239,100,97,0.15); color: var(--red); }
-.log-type-btn.active-income { background: rgba(6,214,160,0.15); color: var(--green); }
+.log-type-btn.active-expense { background: rgba(248,113,113,0.12); color: var(--red); }
+.log-type-btn.active-income { background: rgba(52,211,153,0.12); color: var(--green); }
 
 .amount-display { text-align: center; padding: 8px 0 4px; }
-.amount-currency { font-size: 16px; color: var(--text-dim); font-weight: 500; }
-.amount-value { font-size: 38px; font-weight: 700; letter-spacing: -2px; min-height: 46px; }
+.amount-currency { font-size: 15px; color: var(--text-dim); font-weight: 500; }
+.amount-value { font-size: 36px; font-weight: 700; letter-spacing: -2px; min-height: 44px; }
 .amount-value.expense { color: var(--text); }
 .amount-value.income { color: var(--green); }
 
-.log-meta-row {
-  display: flex; gap: 8px; margin-bottom: 6px;
-}
+.log-meta-row { display: flex; gap: 8px; margin-bottom: 6px; }
 .log-meta-row .desc-input { flex: 1; margin-bottom: 0; }
 
 .desc-input {
-  width: 100%; background: var(--surface); border: 1px solid var(--surface2);
+  width: 100%; background: var(--surface2); border: 1px solid var(--surface3);
   border-radius: 10px; padding: 11px 14px; color: var(--text);
-  font-size: 15px; outline: none; margin-bottom: 8px; transition: border-color 0.2s;
+  font-size: 14px; font-family: inherit; outline: none; margin-bottom: 8px; transition: border-color 0.2s;
 }
 .desc-input:focus { border-color: var(--accent); }
-.desc-input::placeholder { color: var(--text-dim); opacity: 0.6; }
+.desc-input::placeholder { color: var(--text-muted); }
 
 .date-input-compact {
-  background: var(--surface); border: 1px solid var(--surface2);
+  background: var(--surface2); border: 1px solid var(--surface3);
   border-radius: 10px; padding: 11px 12px; color: var(--text);
-  font-size: 14px; outline: none; -webkit-appearance: none;
-  color-scheme: dark; width: 130px; flex-shrink: 0;
+  font-size: 13px; font-family: inherit; outline: none; -webkit-appearance: none;
+  color-scheme: dark; width: 125px; flex-shrink: 0;
 }
 .date-input-compact:focus { border-color: var(--accent); }
 
 .category-preview {
-  text-align: center; padding: 2px 0 6px; font-size: 13px;
-  color: var(--text-dim); min-height: 24px; transition: all 0.2s;
+  text-align: center; padding: 2px 0 6px; font-size: 12px;
+  color: var(--text-dim); min-height: 22px; transition: all 0.2s;
 }
-.category-preview.matched { color: var(--accent); }
+.category-preview.matched { color: var(--accent-light); }
 
 .quick-entries {
   display: flex; gap: 6px; overflow-x: auto; padding: 0 0 8px;
@@ -153,176 +250,166 @@ body {
 }
 .quick-entries::-webkit-scrollbar { display: none; }
 .quick-entry {
-  flex-shrink: 0; background: var(--surface); border: 1px solid var(--surface2);
+  flex-shrink: 0; background: var(--surface2); border: 1px solid var(--surface3);
   border-radius: 20px; padding: 6px 12px; color: var(--text);
-  font-size: 12px; cursor: pointer; white-space: nowrap; transition: all 0.15s;
+  font-size: 11px; font-family: inherit; cursor: pointer; white-space: nowrap; transition: all 0.15s;
 }
-.quick-entry:active { transform: scale(0.95); background: var(--surface2); }
+.quick-entry:active { transform: scale(0.95); background: var(--surface3); }
 
-.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 4px 0; }
+.numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 4px 0; }
 .numpad-btn {
-  background: var(--surface); border: none; border-radius: 10px;
-  color: var(--text); font-size: 22px; font-weight: 500; padding: 12px;
-  cursor: pointer; transition: all 0.1s; -webkit-user-select: none; user-select: none;
+  background: var(--surface2); border: none; border-radius: 10px;
+  color: var(--text); font-size: 20px; font-weight: 500; padding: 11px;
+  font-family: inherit; cursor: pointer; transition: all 0.1s;
+  -webkit-user-select: none; user-select: none;
 }
-.numpad-btn:active { background: var(--surface2); transform: scale(0.96); }
-.numpad-btn.action { background: var(--accent); color: var(--bg); font-size: 15px; font-weight: 700; }
+.numpad-btn:active { background: var(--surface3); transform: scale(0.96); }
+.numpad-btn.action {
+  background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: white; font-size: 14px; font-weight: 700;
+}
 .numpad-btn.action:active { opacity: 0.85; }
-.numpad-btn.backspace { font-size: 18px; }
+.numpad-btn.backspace { font-size: 16px; }
 
 /* ── MONTHLY PLAN TAB ── */
 .plan-summary { display: flex; gap: 10px; margin-bottom: 16px; }
-.plan-stat { flex: 1; background: var(--surface); border-radius: var(--radius); padding: 14px; text-align: center; }
-.plan-stat-value { font-size: 20px; font-weight: 700; }
-.plan-stat-label { font-size: 11px; color: var(--text-dim); margin-top: 4px; font-weight: 500; }
+.plan-stat {
+  flex: 1; background: var(--surface); border-radius: var(--radius); padding: 14px;
+  text-align: center; border: 1px solid rgba(255,255,255,0.03);
+}
+.plan-stat-value { font-size: 18px; font-weight: 700; }
+.plan-stat-label { font-size: 10px; color: var(--text-dim); margin-top: 4px; font-weight: 600; letter-spacing: 0.3px; }
 
 .plan-item {
-  display: flex; align-items: center; gap: 12px; padding: 14px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  display: flex; align-items: center; gap: 12px; padding: 13px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.03);
 }
 .plan-item:last-child { border-bottom: none; }
 
 .plan-check {
-  width: 26px; height: 26px; border-radius: 50%;
-  border: 2px solid var(--surface2); display: flex;
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 2px solid var(--surface3); display: flex;
   align-items: center; justify-content: center;
   cursor: pointer; transition: all 0.2s; flex-shrink: 0;
 }
 .plan-check.checked { background: var(--green); border-color: var(--green); }
-.plan-check svg { width: 14px; height: 14px; stroke: white; stroke-width: 3; fill: none; opacity: 0; transition: opacity 0.2s; }
+.plan-check svg { width: 13px; height: 13px; stroke: white; stroke-width: 3; fill: none; opacity: 0; transition: opacity 0.2s; }
 .plan-check.checked svg { opacity: 1; }
 
 .plan-item-info { flex: 1; }
-.plan-item-name { font-size: 15px; font-weight: 500; }
-.plan-item-due { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
-.plan-item-amount { font-size: 15px; font-weight: 600; }
+.plan-item-name { font-size: 14px; font-weight: 500; }
+.plan-item-due { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.plan-item-due.urgent { color: var(--red); font-weight: 600; }
+.plan-item-due.soon { color: var(--orange); font-weight: 600; }
+.plan-item-amount { font-size: 14px; font-weight: 600; }
 .plan-item-amount.income-amount { color: var(--green); }
 .plan-item-amount.expense-amount { color: var(--text); }
 
 .add-item-btn {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; padding: 14px; background: none;
-  border: 1.5px dashed var(--surface2); border-radius: 10px;
-  color: var(--text-dim); font-size: 14px; font-weight: 500;
-  cursor: pointer; margin-top: 8px; transition: all 0.2s;
+  width: 100%; padding: 13px; background: none;
+  border: 1.5px dashed var(--surface3); border-radius: 10px;
+  color: var(--text-dim); font-size: 13px; font-weight: 500;
+  font-family: inherit; cursor: pointer; margin-top: 8px; transition: all 0.2s;
 }
-.add-item-btn:active { background: var(--surface); }
+.add-item-btn:active { background: var(--surface2); }
 
-/* ── OVERVIEW TAB ── */
-.overview-hero { text-align: center; padding: 20px 0; }
-.overview-remaining { font-size: 42px; font-weight: 700; letter-spacing: -2px; }
-.overview-remaining.positive { color: var(--green); }
-.overview-remaining.negative { color: var(--red); }
-.overview-label { font-size: 14px; color: var(--text-dim); margin-top: 4px; }
-
-.overview-flow { display: flex; gap: 16px; justify-content: center; margin-top: 16px; }
-.flow-item { display: flex; align-items: center; gap: 6px; font-size: 15px; font-weight: 600; }
-.flow-dot { width: 8px; height: 8px; border-radius: 50%; }
-.flow-dot.in { background: var(--green); }
-.flow-dot.out { background: var(--red); }
-
-.spending-bar-container { margin: 20px 0 8px; }
-.spending-bar { height: 8px; background: var(--surface2); border-radius: 4px; overflow: hidden; }
-.spending-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s ease; }
-.spending-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); margin-top: 6px; }
-
-.cat-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; }
-.cat-emoji {
-  font-size: 24px; width: 40px; height: 40px;
+/* ── HISTORY TAB ── */
+.month-nav {
+  display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 8px;
+}
+.month-nav-btn {
+  background: var(--surface2); border: none; color: var(--text-dim);
+  width: 34px; height: 34px; border-radius: 50%; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  background: var(--surface2); border-radius: 10px;
+  font-size: 16px; font-family: inherit; transition: all 0.15s;
 }
-.cat-info { flex: 1; }
-.cat-name { font-size: 14px; font-weight: 600; }
-.cat-bar-bg { height: 4px; background: var(--surface2); border-radius: 2px; margin-top: 6px; overflow: hidden; }
-.cat-bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
-.cat-amount { font-size: 15px; font-weight: 600; text-align: right; }
-.cat-percent { font-size: 11px; color: var(--text-dim); text-align: right; margin-top: 2px; }
+.month-nav-btn:active { background: var(--surface3); }
+.month-nav-label { font-size: 15px; font-weight: 600; min-width: 140px; text-align: center; }
 
 /* Ledger */
 .ledger-date {
-  font-size: 12px; font-weight: 600; color: var(--text-dim);
+  font-size: 11px; font-weight: 600; color: var(--text-dim);
   padding: 12px 0 4px; text-transform: uppercase; letter-spacing: 0.5px;
 }
 .ledger-item {
-  display: flex; align-items: center; gap: 12px; padding: 12px 0;
+  display: flex; align-items: center; gap: 12px; padding: 11px 0;
   border-bottom: 1px solid rgba(255,255,255,0.03);
   cursor: pointer; transition: background 0.15s; border-radius: 8px;
 }
 .ledger-item:active { background: rgba(255,255,255,0.03); }
-.ledger-emoji { font-size: 20px; width: 36px; text-align: center; }
+.ledger-emoji { font-size: 18px; width: 34px; text-align: center; }
 .ledger-info { flex: 1; }
-.ledger-desc { font-size: 14px; font-weight: 500; }
-.ledger-cat { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
-.ledger-amount { font-size: 15px; font-weight: 600; }
+.ledger-desc { font-size: 13px; font-weight: 500; }
+.ledger-cat { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.ledger-amount { font-size: 14px; font-weight: 600; }
 .ledger-amount.credit { color: var(--green); }
 .ledger-amount.debit { color: var(--text); }
 
 /* Reconcile */
 .reconcile-btn {
   display: flex; align-items: center; justify-content: center; gap: 8px;
-  width: 100%; padding: 14px; background: var(--surface);
+  width: 100%; padding: 13px; background: var(--surface);
   border: 1.5px solid var(--accent); border-radius: 12px;
-  color: var(--accent); font-size: 14px; font-weight: 600;
-  cursor: pointer; margin-bottom: 16px; transition: all 0.2s;
+  color: var(--accent-light); font-size: 13px; font-weight: 600;
+  font-family: inherit; cursor: pointer; margin-bottom: 12px; transition: all 0.2s;
 }
-.reconcile-btn:active { background: rgba(6,214,160,0.1); }
+.reconcile-btn:active { background: rgba(124,92,252,0.08); }
 
 .recon-item {
   background: var(--surface); border-radius: var(--radius);
   padding: 14px; margin-bottom: 8px;
-  border-left: 3px solid var(--surface2);
+  border-left: 3px solid var(--surface3);
   transition: all 0.2s;
 }
 .recon-item.matched { border-left-color: var(--green); opacity: 0.5; }
 .recon-item.missed { border-left-color: var(--orange); }
 
 .recon-row { display: flex; justify-content: space-between; align-items: center; }
-.recon-desc { font-size: 14px; font-weight: 500; flex: 1; }
-.recon-amount { font-size: 15px; font-weight: 600; margin-left: 12px; }
-.recon-date { font-size: 12px; color: var(--text-dim); margin-top: 4px; }
+.recon-desc { font-size: 13px; font-weight: 500; flex: 1; }
+.recon-amount { font-size: 14px; font-weight: 600; margin-left: 12px; }
+.recon-date { font-size: 11px; color: var(--text-dim); margin-top: 4px; }
 .recon-status {
-  font-size: 11px; font-weight: 600; padding: 3px 8px;
+  font-size: 10px; font-weight: 600; padding: 3px 8px;
   border-radius: 10px; margin-top: 6px; display: inline-block;
 }
-.recon-status.found { background: rgba(6,214,160,0.15); color: var(--green); }
-.recon-status.missing { background: rgba(244,162,97,0.15); color: var(--orange); }
+.recon-status.found { background: rgba(52,211,153,0.12); color: var(--green); }
+.recon-status.missing { background: rgba(251,191,36,0.12); color: var(--orange); }
 
 .recon-actions { display: flex; gap: 6px; margin-top: 8px; }
 .recon-action-btn {
   padding: 8px 14px; border-radius: 8px; border: none;
-  font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  font-size: 12px; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: all 0.15s;
 }
-.recon-action-btn.add { background: var(--accent); color: var(--bg); }
+.recon-action-btn.add { background: var(--accent); color: white; }
 .recon-action-btn.skip { background: var(--surface2); color: var(--text-dim); }
 .recon-action-btn:active { transform: scale(0.96); }
 
-.recon-summary {
-  display: flex; gap: 10px; margin-bottom: 16px;
-}
+.recon-summary { display: flex; gap: 10px; margin-bottom: 16px; }
 .recon-stat {
   flex: 1; background: var(--surface); border-radius: 10px;
-  padding: 12px; text-align: center;
+  padding: 12px; text-align: center; border: 1px solid rgba(255,255,255,0.03);
 }
-.recon-stat-val { font-size: 22px; font-weight: 700; }
-.recon-stat-label { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.recon-stat-val { font-size: 20px; font-weight: 700; }
+.recon-stat-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; letter-spacing: 0.3px; }
 
 .file-upload-area {
-  border: 2px dashed var(--surface2); border-radius: 14px;
+  border: 2px dashed var(--surface3); border-radius: 14px;
   padding: 40px 20px; text-align: center; cursor: pointer;
   transition: all 0.2s; margin-bottom: 16px;
 }
-.file-upload-area:active { border-color: var(--accent); background: rgba(6,214,160,0.05); }
+.file-upload-area:active { border-color: var(--accent); background: rgba(124,92,252,0.04); }
 .file-upload-icon { font-size: 40px; margin-bottom: 12px; }
-.file-upload-text { font-size: 15px; font-weight: 500; }
-.file-upload-hint { font-size: 12px; color: var(--text-dim); margin-top: 6px; }
+.file-upload-text { font-size: 14px; font-weight: 600; }
+.file-upload-hint { font-size: 11px; color: var(--text-dim); margin-top: 6px; line-height: 1.5; }
 
 /* ── Modals ── */
 .modal-overlay {
   position: fixed; inset: 0; background: rgba(0,0,0,0.6);
   z-index: 200; display: flex; align-items: flex-end;
   justify-content: center; opacity: 0; pointer-events: none;
-  transition: opacity 0.25s;
+  transition: opacity 0.25s; backdrop-filter: blur(4px);
 }
 .modal-overlay.show { opacity: 1; pointer-events: auto; }
 
@@ -331,60 +418,61 @@ body {
   padding: 20px 20px calc(20px + var(--safe-bottom));
   width: 100%; max-width: 500px;
   transform: translateY(100%); transition: transform 0.3s ease;
-  max-height: 85vh; overflow-y: auto;
+  max-height: 90vh; overflow-y: auto;
 }
 .modal-overlay.show .modal { transform: translateY(0); }
 
-.modal-handle { width: 40px; height: 4px; background: var(--surface2); border-radius: 2px; margin: 0 auto 16px; }
-.modal-title { font-size: 18px; font-weight: 700; margin-bottom: 16px; }
+.modal-handle { width: 36px; height: 4px; background: var(--surface3); border-radius: 2px; margin: 0 auto 16px; }
+.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 16px; }
 
 .modal-input {
-  width: 100%; background: var(--bg); border: 1px solid var(--surface2);
-  border-radius: 10px; padding: 14px 16px; color: var(--text);
-  font-size: 16px; outline: none; margin-bottom: 10px;
+  width: 100%; background: var(--bg); border: 1px solid var(--surface3);
+  border-radius: 10px; padding: 13px 16px; color: var(--text);
+  font-size: 15px; font-family: inherit; outline: none; margin-bottom: 10px;
 }
 .modal-input:focus { border-color: var(--accent); }
-.modal-input::placeholder { color: var(--text-dim); opacity: 0.5; }
+.modal-input::placeholder { color: var(--text-muted); }
 
 .modal-row { display: flex; gap: 10px; }
 .modal-row .modal-input { flex: 1; }
 
 .modal-save-btn {
-  width: 100%; padding: 16px; background: var(--accent); color: var(--bg);
-  border: none; border-radius: 12px; font-size: 16px; font-weight: 700;
-  cursor: pointer; margin-top: 8px;
+  width: 100%; padding: 15px; background: linear-gradient(135deg, var(--accent), var(--accent-light));
+  color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
+  font-family: inherit; cursor: pointer; margin-top: 8px;
 }
 .modal-save-btn:active { opacity: 0.85; }
 
 .modal-delete-btn {
-  width: 100%; padding: 14px; background: none; color: var(--red);
-  border: 1px solid rgba(239,100,97,0.3); border-radius: 12px;
-  font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 8px;
+  width: 100%; padding: 13px; background: none; color: var(--red);
+  border: 1px solid rgba(248,113,113,0.2); border-radius: 12px;
+  font-size: 14px; font-weight: 600; font-family: inherit;
+  cursor: pointer; margin-top: 8px;
 }
-.modal-delete-btn:active { background: rgba(239,100,97,0.1); }
+.modal-delete-btn:active { background: rgba(248,113,113,0.08); }
 
 .cat-picker { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .cat-pick-btn {
-  padding: 8px 14px; border-radius: 20px; border: 1px solid var(--surface2);
-  background: transparent; color: var(--text); font-size: 13px;
-  cursor: pointer; transition: all 0.15s;
+  padding: 8px 14px; border-radius: 20px; border: 1px solid var(--surface3);
+  background: transparent; color: var(--text); font-size: 12px;
+  font-family: inherit; cursor: pointer; transition: all 0.15s;
 }
-.cat-pick-btn.selected { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.cat-pick-btn.selected { background: var(--accent); border-color: var(--accent); color: white; }
 
 /* Uncategorized review */
-.uncat-item { background: var(--surface); border-radius: var(--radius); padding: 16px; margin-bottom: 10px; }
+.uncat-item { background: var(--surface); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; }
 .uncat-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
-.uncat-desc { font-size: 15px; font-weight: 500; }
-.uncat-amount { font-size: 15px; font-weight: 600; }
+.uncat-desc { font-size: 14px; font-weight: 500; }
+.uncat-amount { font-size: 14px; font-weight: 600; }
 .uncat-cats { display: flex; flex-wrap: wrap; gap: 6px; }
 .uncat-cat-btn {
-  padding: 6px 12px; border-radius: 16px; border: 1px solid var(--surface2);
-  background: transparent; color: var(--text-dim); font-size: 12px;
-  cursor: pointer; transition: all 0.15s;
+  padding: 6px 12px; border-radius: 16px; border: 1px solid var(--surface3);
+  background: transparent; color: var(--text-dim); font-size: 11px;
+  font-family: inherit; cursor: pointer; transition: all 0.15s;
 }
-.uncat-cat-btn:active { background: var(--accent); border-color: var(--accent); color: var(--bg); }
+.uncat-cat-btn:active { background: var(--accent); border-color: var(--accent); color: white; }
 
-.delete-btn { background: none; border: none; color: var(--red); font-size: 12px; cursor: pointer; padding: 4px 8px; opacity: 0.7; }
+.delete-btn { background: none; border: none; color: var(--red); font-size: 11px; cursor: pointer; padding: 4px 8px; opacity: 0.6; }
 .delete-btn:active { opacity: 1; }
 
 .toast {
@@ -392,8 +480,9 @@ body {
   transform: translateX(-50%) translateY(20px);
   background: var(--surface2); color: var(--text);
   padding: 12px 24px; border-radius: 25px;
-  font-size: 14px; font-weight: 500; opacity: 0;
+  font-size: 13px; font-weight: 500; opacity: 0;
   transition: all 0.3s; z-index: 300; pointer-events: none; white-space: nowrap;
+  border: 1px solid rgba(255,255,255,0.06);
 }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
@@ -409,71 +498,58 @@ body {
   display: flex; align-items: center; justify-content: space-between;
   padding: 16px 0;
 }
-.full-overlay-title { font-size: 20px; font-weight: 700; }
+.full-overlay-title { font-size: 18px; font-weight: 700; }
 .full-overlay-close {
-  background: var(--surface); border: none; color: var(--text);
-  width: 36px; height: 36px; border-radius: 50%;
-  font-size: 18px; cursor: pointer; display: flex;
+  background: var(--surface2); border: none; color: var(--text);
+  width: 34px; height: 34px; border-radius: 50%;
+  font-size: 16px; cursor: pointer; display: flex;
   align-items: center; justify-content: center;
 }
 
-/* Settings gear */
+/* Settings */
 .settings-btn {
   background: none; border: none; color: var(--text-dim);
   width: 32px; height: 32px; cursor: pointer; padding: 4px;
   display: flex; align-items: center; justify-content: center;
 }
-.settings-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; }
-
-/* Month navigator */
-.month-nav {
-  display: flex; align-items: center; justify-content: center; gap: 16px; margin-bottom: 8px;
-}
-.month-nav-btn {
-  background: var(--surface); border: none; color: var(--text-dim);
-  width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px; transition: all 0.15s;
-}
-.month-nav-btn:active { background: var(--surface2); }
-.month-nav-label { font-size: 16px; font-weight: 600; min-width: 140px; text-align: center; }
+.settings-btn svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 1.8; fill: none; }
 
 /* Comparison badges */
 .compare-badge {
   display: inline-flex; align-items: center; gap: 3px;
-  font-size: 11px; font-weight: 600; padding: 2px 8px;
-  border-radius: 10px; margin-left: 6px;
+  font-size: 10px; font-weight: 600; padding: 2px 7px;
+  border-radius: 10px; margin-left: 4px;
 }
-.compare-badge.up { background: rgba(239,100,97,0.15); color: var(--red); }
-.compare-badge.down { background: rgba(6,214,160,0.15); color: var(--green); }
-.compare-badge.neutral { background: rgba(148,163,184,0.15); color: var(--text-dim); }
+.compare-badge.up { background: rgba(248,113,113,0.12); color: var(--red); }
+.compare-badge.down { background: rgba(52,211,153,0.12); color: var(--green); }
+.compare-badge.neutral { background: rgba(148,163,184,0.1); color: var(--text-dim); }
 
-/* Budget alert */
+/* Budget */
 .budget-alert {
   display: flex; align-items: center; gap: 8px;
-  padding: 10px 14px; border-radius: 10px; margin-bottom: 8px;
-  font-size: 13px; font-weight: 500;
+  padding: 10px 14px; border-radius: 10px; margin-bottom: 6px;
+  font-size: 12px; font-weight: 500;
 }
-.budget-alert.warning { background: rgba(244,162,97,0.12); color: var(--orange); }
-.budget-alert.over { background: rgba(239,100,97,0.12); color: var(--red); }
+.budget-alert.warning { background: rgba(251,191,36,0.10); color: var(--orange); }
+.budget-alert.over { background: rgba(248,113,113,0.10); color: var(--red); }
 
 .budget-set-btn {
-  font-size: 11px; color: var(--accent); background: none; border: none;
-  cursor: pointer; padding: 2px 6px; font-weight: 600;
+  font-size: 10px; color: var(--accent-light); background: none; border: none;
+  cursor: pointer; padding: 2px 6px; font-weight: 600; font-family: inherit;
 }
 
-/* Settings modal items */
+/* Settings items */
 .settings-item {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 16px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+  padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.03);
 }
 .settings-item:last-child { border-bottom: none; }
-.settings-item-label { font-size: 15px; font-weight: 500; }
-.settings-item-desc { font-size: 12px; color: var(--text-dim); margin-top: 2px; }
+.settings-item-label { font-size: 14px; font-weight: 500; }
+.settings-item-desc { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
 .settings-item-action {
   background: var(--surface2); border: none; color: var(--text);
-  padding: 10px 18px; border-radius: 10px; font-size: 14px;
-  font-weight: 600; cursor: pointer; white-space: nowrap;
+  padding: 9px 16px; border-radius: 10px; font-size: 13px;
+  font-weight: 600; font-family: inherit; cursor: pointer; white-space: nowrap;
 }
 .settings-item-action:active { opacity: 0.8; }
 .settings-item-action.danger { color: var(--red); }
@@ -494,18 +570,25 @@ body {
   </div>
   <div class="tab-content" id="tabContent"></div>
   <div class="tab-bar">
-    <button class="tab-btn active" data-tab="log" onclick="switchTab('log')">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-      Log
+    <button class="tab-btn active" data-tab="dashboard" onclick="switchTab('dashboard')">
+      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Home
     </button>
     <button class="tab-btn" data-tab="plan" onclick="switchTab('plan')">
       <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       Plan
       <span class="tab-badge" id="uncatBadge" style="display:none">0</span>
     </button>
-    <button class="tab-btn" data-tab="overview" onclick="switchTab('overview')">
+    <div class="fab-container">
+      <button class="fab-btn" onclick="openLogModal()" aria-label="Log spending">+</button>
+    </div>
+    <button class="tab-btn" data-tab="history" onclick="switchTab('history')">
       <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-      Overview
+      History
+    </button>
+    <button class="tab-btn" data-tab="reconcile" onclick="switchTab('reconcile')">
+      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      Reconcile
     </button>
   </div>
 </div>
@@ -517,7 +600,7 @@ body {
 <div class="full-overlay" id="reconOverlay">
   <div class="full-overlay-header">
     <div class="full-overlay-title">Reconcile Statement</div>
-    <button class="full-overlay-close" onclick="closeReconcile()">✕</button>
+    <button class="full-overlay-close" onclick="closeReconcile()">&#x2715;</button>
   </div>
   <div id="reconContent"></div>
 </div>
@@ -537,20 +620,26 @@ let db = null;
 
 const CATEGORIES = [
   { id: 'makan', emoji: '🍜', label: 'Makan', color: '#f4a261' },
-  { id: 'transport', emoji: '🚗', label: 'Transport', color: '#4cc9f0' },
-  { id: 'bills', emoji: '🏠', label: 'Bills', color: '#9b72f2' },
-  { id: 'shopping', emoji: '🛍️', label: 'Shopping', color: '#e87be0' },
-  { id: 'fun', emoji: '🎮', label: 'Fun', color: '#f0c040' },
-  { id: 'income', emoji: '💰', label: 'Income', color: '#06d6a0' },
+  { id: 'transport', emoji: '🚗', label: 'Transport', color: '#60a5fa' },
+  { id: 'bills', emoji: '🏠', label: 'Bills', color: '#a78bfa' },
+  { id: 'shopping', emoji: '🛍️', label: 'Shopping', color: '#f472b6' },
+  { id: 'fun', emoji: '🎮', label: 'Fun', color: '#fbbf24' },
+  { id: 'sports', emoji: '🏃', label: 'Sports', color: '#2dd4bf' },
+  { id: 'health', emoji: '🏥', label: 'Health', color: '#34d399' },
+  { id: 'personal', emoji: '💈', label: 'Personal Care', color: '#fb923c' },
+  { id: 'income', emoji: '💰', label: 'Income', color: '#34d399' },
   { id: 'uncategorized', emoji: '❓', label: 'Uncategorized', color: '#4a4a56' },
 ];
 
 const KEYWORD_MAP = {
   makan: ['nasi', 'lemak', 'mcd', 'mcdonald', 'kfc', 'pizza', 'sushi', 'roti', 'canai', 'teh', 'tarik', 'kopi', 'coffee', 'starbucks', 'lunch', 'dinner', 'breakfast', 'makan', 'food', 'eat', 'restaurant', 'mamak', 'warung', 'noodle', 'mee', 'rice', 'ayam', 'chicken', 'burger', 'tea', 'drink', 'juice', 'boba', 'bubble', 'snack', 'goreng', 'sup', 'soup', 'bakery', 'bread', 'cake', 'dessert', 'ice cream', 'groceries', 'grocery', 'tesco', 'aeon', 'jaya grocer', 'village grocer', 'mydin', 'speedmart', '99', 'market', 'pasar', 'sayur', 'ikan', 'daging', 'buah', 'fruit', 'veg', 'dapur'],
-  transport: ['grab', 'grabcar', 'grabfood', 'fuel', 'petrol', 'petronas', 'shell', 'petron', 'caltex', 'parking', 'toll', 'lrt', 'mrt', 'bus', 'rapidkl', 'myrapid', 'touch n go', 'tng', 'ewallet', 'uber', 'taxi', 'train', 'komuter', 'ktm', 'car', 'motorcycle', 'service', 'workshop', 'tyre', 'tire', 'wash', 'oil', 'highway'],
-  bills: ['rent', 'sewa', 'tnb', 'electric', 'electricity', 'water', 'air', 'wifi', 'internet', 'unifi', 'maxis', 'celcom', 'digi', 'umobile', 'phone', 'bill', 'insurance', 'astro', 'netflix', 'spotify', 'youtube', 'subscription', 'icloud', 'apple', 'google', 'microsoft', 'gym', 'loan', 'instalment', 'ptptn'],
+  transport: ['grab', 'grabcar', 'grabfood', 'fuel', 'petrol', 'petronas', 'shell', 'petron', 'caltex', 'parking', 'toll', 'lrt', 'mrt', 'bus', 'rapidkl', 'myrapid', 'touch n go', 'tng', 'ewallet', 'uber', 'taxi', 'train', 'komuter', 'ktm', 'car', 'motorcycle', 'service', 'workshop', 'tyre', 'tire', 'wash', 'oil', 'highway', 'setel'],
+  bills: ['rent', 'sewa', 'tnb', 'electric', 'electricity', 'water', 'air', 'wifi', 'internet', 'unifi', 'maxis', 'celcom', 'digi', 'umobile', 'phone', 'bill', 'insurance', 'astro', 'netflix', 'spotify', 'youtube', 'subscription', 'icloud', 'apple', 'google', 'microsoft', 'loan', 'instalment', 'ptptn', 'prudential'],
   shopping: ['shopee', 'lazada', 'uniqlo', 'h&m', 'zara', 'cotton on', 'nike', 'adidas', 'shoes', 'clothes', 'shirt', 'pants', 'baju', 'seluar', 'kasut', 'bag', 'gadget', 'phone case', 'amazon', 'ikea', 'mr diy', 'daiso', 'watson', 'guardian', 'skincare', 'shampoo', 'toiletries'],
   fun: ['movie', 'cinema', 'gsc', 'tgv', 'game', 'games', 'steam', 'playstation', 'ps5', 'xbox', 'nintendo', 'switch', 'karaoke', 'bowling', 'concert', 'ticket', 'event', 'hobby', 'book', 'manga', 'comic', 'bar', 'club', 'party', 'trip', 'travel', 'hotel', 'airbnb', 'holiday', 'vacation'],
+  sports: ['gym', 'fitness', 'badminton', 'futsal', 'swimming', 'pool', 'tennis', 'golf', 'yoga', 'run', 'marathon', 'sport', 'workout', 'exercise'],
+  health: ['doctor', 'clinic', 'hospital', 'pharmacy', 'ubat', 'medicine', 'dental', 'dentist', 'medical', 'health', 'consultation', 'checkup'],
+  personal: ['haircut', 'barber', 'salon', 'spa', 'massage', 'grooming', 'facial', 'nail', 'beauty', 'laundry', 'dry clean'],
 };
 
 let userKeywords = {};
@@ -672,17 +761,64 @@ function showToast(msg) {
 }
 
 // ══════════════════════════════════════════
+// DUE DATE HELPERS
+// ══════════════════════════════════════════
+function getDaysUntilDue(dueDay) {
+  if (!dueDay) return null;
+  const day = parseInt(dueDay);
+  if (isNaN(day) || day < 1 || day > 31) return null;
+  const today = new Date();
+  const thisMonth = new Date(today.getFullYear(), today.getMonth(), day);
+  let diff;
+  if (thisMonth >= today) {
+    diff = Math.ceil((thisMonth - today) / 86400000);
+  } else {
+    // Already passed this month, check next month
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, day);
+    diff = Math.ceil((nextMonth - today) / 86400000);
+  }
+  return diff;
+}
+
+function getDueDateLabel(dueDay, isPaid) {
+  if (!dueDay) return '';
+  const days = getDaysUntilDue(dueDay);
+  if (days === null) return `Due: ${dueDay}`;
+  if (isPaid) return `Paid - Due on ${ordinal(parseInt(dueDay))}`;
+  if (days === 0) return 'Due TODAY';
+  if (days < 0) return 'OVERDUE';
+  if (days <= 3) return `Due in ${days} day${days > 1 ? 's' : ''} !`;
+  if (days <= 7) return `Due in ${days} days`;
+  return `Due on ${ordinal(parseInt(dueDay))}`;
+}
+
+function getDueDateClass(dueDay, isPaid) {
+  if (isPaid) return '';
+  const days = getDaysUntilDue(dueDay);
+  if (days === null) return '';
+  if (days <= 3) return 'urgent';
+  if (days <= 7) return 'soon';
+  return '';
+}
+
+function ordinal(n) {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+// ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
-let currentTab = 'log';
+let currentTab = 'dashboard';
 let logType = 'expense';
 let amountStr = '0';
 let logDate = getToday();
 let allTransactions = [];
 let allCommitments = [];
-let reconData = []; // parsed CSV rows for reconciliation
-let budgetLimits = {}; // { categoryId: amountLimit }
-let overviewMonthKey = getCurrentMonthKey(); // for month navigation in overview
+let reconData = [];
+let budgetLimits = {};
+let overviewMonthKey = getCurrentMonthKey();
 
 // ══════════════════════════════════════════
 // TAB MANAGEMENT
@@ -697,9 +833,10 @@ function renderCurrentTab() {
   const c = document.getElementById('tabContent');
   c.scrollTop = 0;
   switch (currentTab) {
-    case 'log': renderLogTab(c); break;
+    case 'dashboard': renderDashboard(c); break;
     case 'plan': renderPlanTab(c); break;
-    case 'overview': renderOverviewTab(c); break;
+    case 'history': renderHistoryTab(c); break;
+    case 'reconcile': renderReconcileTab(c); break;
   }
   updateBadge();
 }
@@ -712,9 +849,13 @@ function updateBadge() {
 }
 
 // ══════════════════════════════════════════
-// LOG TAB
+// LOG MODAL (FAB opens this)
 // ══════════════════════════════════════════
-function renderLogTab(container) {
+function openLogModal() {
+  logType = 'expense';
+  amountStr = '0';
+  logDate = getToday();
+
   const freqMap = {};
   allTransactions.filter(t => t.type === 'expense').forEach(t => {
     const key = t.description?.toLowerCase();
@@ -723,27 +864,29 @@ function renderLogTab(container) {
     freqMap[key].count++;
     freqMap[key].amount = t.amount;
   });
-  const quickEntries = Object.values(freqMap).sort((a, b) => b.count - a.count).slice(0, 6);
+  const quickEntries = Object.values(freqMap).sort((a, b) => b.count - a.count).slice(0, 5);
 
   let quickHtml = '';
   if (quickEntries.length > 0) {
-    quickHtml = `<div class="quick-entries">${quickEntries.map(q =>
+    quickHtml = `<div class="quick-entries" style="margin-top:4px;">${quickEntries.map(q =>
       `<button class="quick-entry" onclick="quickLog('${q.desc.replace(/'/g, "\\'")}', ${q.amount})">${q.desc} RM${q.amount}</button>`
     ).join('')}</div>`;
   }
 
-  container.innerHTML = `
+  const modal = document.getElementById('modalContent');
+  modal.innerHTML = `
+    <div class="modal-handle"></div>
     <div class="log-type-toggle">
-      <button class="log-type-btn ${logType === 'expense' ? 'active-expense' : ''}" onclick="setLogType('expense')">Expense</button>
-      <button class="log-type-btn ${logType === 'income' ? 'active-income' : ''}" onclick="setLogType('income')">Income</button>
+      <button class="log-type-btn active-expense" id="logBtnExpense" onclick="setLogType('expense')">Expense</button>
+      <button class="log-type-btn" id="logBtnIncome" onclick="setLogType('income')">Income</button>
     </div>
     ${quickHtml}
     <div class="amount-display">
       <span class="amount-currency">RM</span>
-      <div class="amount-value ${logType}" id="amountDisplay">${amountStr === '0' ? '0' : amountStr}</div>
+      <div class="amount-value expense" id="amountDisplay">0</div>
     </div>
     <div class="log-meta-row">
-      <input class="desc-input" id="descInput" type="text" placeholder="${logType === 'income' ? 'e.g. Salary, Freelance...' : 'e.g. Nasi Lemak, Grab...'}" oninput="onDescInput(this.value)" autocomplete="off">
+      <input class="desc-input" id="descInput" type="text" placeholder="e.g. Nasi Lemak, Grab..." oninput="onDescInput(this.value)" autocomplete="off">
       <input class="date-input-compact" id="logDateInput" type="date" value="${logDate}" onchange="logDate=this.value">
     </div>
     <div class="category-preview" id="catPreview"></div>
@@ -759,30 +902,49 @@ function renderLogTab(container) {
       <button class="numpad-btn" onclick="numInput('9')">9</button>
       <button class="numpad-btn" onclick="numInput('.')">.</button>
       <button class="numpad-btn" onclick="numInput('0')">0</button>
-      <button class="numpad-btn backspace" onclick="numBackspace()">⌫</button>
+      <button class="numpad-btn backspace" onclick="numBackspace()">&#x232B;</button>
     </div>
     <button class="numpad-btn action" style="width:100%;margin-top:4px;border-radius:10px;padding:14px;" onclick="saveEntry()">
-      ${logType === 'income' ? '+ Add Income' : 'Log Spending'}
+      Log Spending
     </button>
   `;
+  document.getElementById('modalOverlay').classList.add('show');
+  setTimeout(() => document.getElementById('descInput')?.focus(), 350);
 }
 
-function setLogType(type) { logType = type; renderCurrentTab(); }
+function setLogType(type) {
+  logType = type;
+  const expBtn = document.getElementById('logBtnExpense');
+  const incBtn = document.getElementById('logBtnIncome');
+  const amtEl = document.getElementById('amountDisplay');
+  const descEl = document.getElementById('descInput');
+  const saveBtn = document.querySelector('.numpad-btn.action');
+  if (expBtn && incBtn) {
+    expBtn.className = 'log-type-btn' + (type === 'expense' ? ' active-expense' : '');
+    incBtn.className = 'log-type-btn' + (type === 'income' ? ' active-income' : '');
+  }
+  if (amtEl) amtEl.className = 'amount-value ' + type;
+  if (descEl) descEl.placeholder = type === 'income' ? 'e.g. Salary, Freelance...' : 'e.g. Nasi Lemak, Grab...';
+  if (saveBtn) saveBtn.textContent = type === 'income' ? '+ Add Income' : 'Log Spending';
+}
 
 function numInput(char) {
   if (char === '.' && amountStr.includes('.')) return;
   if (amountStr.includes('.') && amountStr.split('.')[1].length >= 2) return;
   amountStr = amountStr === '0' && char !== '.' ? char : amountStr + char;
-  document.getElementById('amountDisplay').textContent = amountStr;
+  const el = document.getElementById('amountDisplay');
+  if (el) el.textContent = amountStr;
 }
 
 function numBackspace() {
   amountStr = amountStr.length <= 1 ? '0' : amountStr.slice(0, -1);
-  document.getElementById('amountDisplay').textContent = amountStr === '0' ? '0' : amountStr;
+  const el = document.getElementById('amountDisplay');
+  if (el) el.textContent = amountStr === '0' ? '0' : amountStr;
 }
 
 function onDescInput(val) {
   const preview = document.getElementById('catPreview');
+  if (!preview) return;
   if (!val.trim()) { preview.textContent = ''; preview.classList.remove('matched'); return; }
   if (logType === 'income') { preview.textContent = '💰 Income'; preview.classList.add('matched'); return; }
   const cat = autoCategory(val);
@@ -798,9 +960,10 @@ function onDescInput(val) {
 
 function quickLog(desc, amount) {
   amountStr = amount.toString();
-  document.getElementById('amountDisplay').textContent = amountStr;
-  document.getElementById('descInput').value = desc;
-  onDescInput(desc);
+  const amtEl = document.getElementById('amountDisplay');
+  const descEl = document.getElementById('descInput');
+  if (amtEl) amtEl.textContent = amountStr;
+  if (descEl) { descEl.value = desc; onDescInput(desc); }
 }
 
 async function saveEntry() {
@@ -820,6 +983,7 @@ async function saveEntry() {
   logDate = getToday();
   const catInfo = getCatInfo(category);
   showToast(`${catInfo.emoji} ${logType === 'income' ? '+' : '-'}RM${amount.toFixed(2)} logged`);
+  closeModalForce();
   renderCurrentTab();
 }
 
@@ -848,7 +1012,7 @@ function openEditTransaction(id) {
       <input class="modal-input" id="editDate" type="date" value="${t.date}" style="max-width:160px;color-scheme:dark;">
     </div>
     ${!isIncome ? `
-      <div style="font-size:13px;color:var(--text-dim);margin-bottom:8px;font-weight:500;">Category</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;font-weight:500;">Category</div>
       <div class="cat-picker" id="editCatPicker">
         ${catsForPicker.map(c => `
           <button class="cat-pick-btn ${c.id === editCatSelected ? 'selected' : ''}" onclick="selectEditCat('${c.id}')">${c.emoji} ${c.label}</button>
@@ -864,10 +1028,6 @@ function openEditTransaction(id) {
 
 function selectEditCat(catId) {
   editCatSelected = catId;
-  document.querySelectorAll('#editCatPicker .cat-pick-btn').forEach(b => {
-    b.classList.toggle('selected', b.textContent.includes(getCatInfo(catId).label));
-  });
-  // More reliable: re-render picker
   const picker = document.getElementById('editCatPicker');
   if (picker) {
     const cats = CATEGORIES.filter(c => c.id !== 'income');
@@ -880,7 +1040,6 @@ function selectEditCat(catId) {
 async function saveEditTransaction(id) {
   const t = allTransactions.find(x => x.id === id);
   if (!t) return;
-
   t.description = document.getElementById('editDesc').value.trim();
   t.amount = parseFloat(document.getElementById('editAmount').value) || t.amount;
   t.date = document.getElementById('editDate').value || t.date;
@@ -888,7 +1047,6 @@ async function saveEditTransaction(id) {
     t.category = editCatSelected || t.category;
     if (t.category !== 'uncategorized') learnKeyword(t.description, t.category);
   }
-
   await dbPut('transactions', t);
   closeModalForce();
   showToast('Transaction updated');
@@ -901,6 +1059,212 @@ async function deleteTransaction(id) {
   closeModalForce();
   showToast('Transaction deleted');
   renderCurrentTab();
+}
+
+// ══════════════════════════════════════════
+// DASHBOARD (HOME TAB)
+// ══════════════════════════════════════════
+function renderDashboard(container) {
+  const monthKey = getCurrentMonthKey();
+  const monthTx = allTransactions.filter(t => t.date.startsWith(monthKey));
+  const totalIncome = monthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+  const totalExpense = monthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
+  const remaining = totalIncome - totalExpense;
+  const spentPct = totalIncome > 0 ? Math.min((totalExpense / totalIncome) * 100, 100) : 0;
+
+  // Category totals for donut
+  const catTotals = {};
+  monthTx.filter(t => t.type === 'expense').forEach(t => {
+    if (!catTotals[t.category]) catTotals[t.category] = 0;
+    catTotals[t.category] += t.amount;
+  });
+  const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
+  const maxCatAmount = sortedCats.length > 0 ? sortedCats[0][1] : 1;
+
+  // Donut SVG
+  const donutSvg = buildDonutChart(sortedCats, totalExpense);
+
+  // Due date alerts
+  const dueAlerts = buildDueAlerts(monthKey);
+
+  // Budget alerts
+  let budgetAlertsHtml = '';
+  const alertItems = [];
+  for (const [catId, limit] of Object.entries(budgetLimits)) {
+    const spent = catTotals[catId] || 0;
+    const pct = Math.round((spent / limit) * 100);
+    const info = getCatInfo(catId);
+    if (pct >= 80 && pct < 100) {
+      alertItems.push(`<div class="budget-alert warning">${info.emoji} ${info.label}: ${formatRM(spent)} / ${formatRM(limit)} (${pct}%)</div>`);
+    } else if (pct >= 100) {
+      alertItems.push(`<div class="budget-alert over">${info.emoji} ${info.label}: ${formatRM(spent)} / ${formatRM(limit)} (${pct}%)</div>`);
+    }
+  }
+  budgetAlertsHtml = alertItems.join('');
+
+  let barColor = 'var(--accent)';
+  if (spentPct > 75) barColor = 'var(--orange)';
+  if (spentPct > 95) barColor = 'var(--red)';
+
+  const [mkY, mkM] = monthKey.split('-').map(Number);
+  const daysInMonth = new Date(mkY, mkM, 0).getDate();
+  const dayOfMonth = new Date().getDate();
+  const dailyBurn = dayOfMonth > 0 ? totalExpense / dayOfMonth : 0;
+
+  container.innerHTML = `
+    ${dueAlerts}
+
+    <div class="dash-hero">
+      <div class="dash-balance ${remaining >= 0 ? 'positive' : 'negative'}">${remaining >= 0 ? '' : '-'}${formatRM(Math.abs(remaining))}</div>
+      <div class="dash-label">remaining this month</div>
+    </div>
+
+    <div class="dash-flow">
+      <div class="dash-flow-card">
+        <div class="dash-flow-icon inc">INCOME</div>
+        <div class="dash-flow-val" style="color:var(--green)">${formatRM(totalIncome)}</div>
+      </div>
+      <div class="dash-flow-card">
+        <div class="dash-flow-icon exp">EXPENSES</div>
+        <div class="dash-flow-val">${formatRM(totalExpense)}</div>
+      </div>
+    </div>
+
+    ${budgetAlertsHtml}
+
+    <div class="card" style="margin-top:12px;">
+      <div class="spending-bar-container">
+        <div class="spending-bar">
+          <div class="spending-bar-fill" style="width:${spentPct}%;background:${barColor}"></div>
+        </div>
+        <div class="spending-bar-label">
+          <span>${spentPct.toFixed(0)}% of income spent</span>
+          <span>~${formatRM(dailyBurn)}/day</span>
+        </div>
+      </div>
+    </div>
+
+    ${totalExpense > 0 ? `
+      <div class="donut-container">
+        ${donutSvg}
+        <div class="donut-center">
+          <div class="donut-center-amount">${formatRM(totalExpense)}</div>
+          <div class="donut-center-label">total spent</div>
+        </div>
+      </div>
+    ` : ''}
+
+    <div class="card">
+      <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
+        <span>By Category</span>
+        <button class="budget-set-btn" onclick="openBudgetSettings()">Set Budgets</button>
+      </div>
+      ${sortedCats.length === 0 ? '<div style="color:var(--text-dim);font-size:13px;">No spending recorded yet</div>' : ''}
+      ${sortedCats.map(([catId, total]) => {
+        const info = getCatInfo(catId);
+        const pct = totalExpense > 0 ? ((total / totalExpense) * 100).toFixed(0) : 0;
+        const barW = (total / maxCatAmount) * 100;
+        const limit = budgetLimits[catId];
+        let budgetInfo = '';
+        if (limit) {
+          const bPct = Math.round((total / limit) * 100);
+          const bColor = bPct >= 100 ? 'var(--red)' : bPct >= 80 ? 'var(--orange)' : 'var(--text-dim)';
+          budgetInfo = `<span style="font-size:10px;color:${bColor};margin-left:4px;">${bPct}% of ${formatRM(limit)}</span>`;
+        }
+        return `
+          <div class="cat-item">
+            <div class="cat-emoji">${info.emoji}</div>
+            <div class="cat-info">
+              <div class="cat-name">${info.label}</div>
+              <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${barW}%;background:${info.color}"></div></div>
+              ${budgetInfo ? `<div style="margin-top:2px;">${budgetInfo}</div>` : ''}
+            </div>
+            <div>
+              <div class="cat-amount">${formatRM(total)}</div>
+              <div class="cat-percent">${pct}%</div>
+            </div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    <div class="card">
+      <div class="card-title">Recent</div>
+      ${renderRecentTransactions(monthTx, 5)}
+    </div>
+  `;
+}
+
+function buildDonutChart(sortedCats, total) {
+  if (sortedCats.length === 0 || total === 0) return '';
+  const size = 180;
+  const cx = size / 2, cy = size / 2;
+  const r = 70;
+  const strokeWidth = 24;
+  const circumference = 2 * Math.PI * r;
+  let offset = 0;
+  let arcs = '';
+
+  for (const [catId, amount] of sortedCats) {
+    const info = getCatInfo(catId);
+    const pct = amount / total;
+    const dashLen = pct * circumference;
+    const gap = sortedCats.length > 1 ? 3 : 0;
+    arcs += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${info.color}" stroke-width="${strokeWidth}"
+      stroke-dasharray="${Math.max(0, dashLen - gap)} ${circumference}" stroke-dashoffset="${-offset}"
+      transform="rotate(-90 ${cx} ${cy})" stroke-linecap="round" style="transition:stroke-dasharray 0.5s;"/>`;
+    offset += dashLen;
+  }
+
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${arcs}</svg>`;
+}
+
+function buildDueAlerts(monthKey) {
+  const unpaidExpenses = allCommitments.filter(c =>
+    c.type === 'expense' && c.dueDay && !c.paidMonths?.includes(monthKey)
+  );
+
+  const alerts = [];
+  for (const item of unpaidExpenses) {
+    const days = getDaysUntilDue(item.dueDay);
+    if (days !== null && days <= 7) {
+      alerts.push({ item, days });
+    }
+  }
+
+  if (alerts.length === 0) return '';
+
+  alerts.sort((a, b) => a.days - b.days);
+
+  return `<div class="due-alerts">${alerts.map(a => {
+    const cls = a.days <= 3 ? 'urgent' : 'soon';
+    const label = a.days === 0 ? 'Due TODAY' : a.days < 0 ? 'OVERDUE' : `Due in ${a.days}d`;
+    return `
+      <div class="due-alert-item ${cls}">
+        <span>⏰</span>
+        <span class="due-name">${a.item.name}</span>
+        <span class="due-amount">${formatRM(a.item.amount)}</span>
+        <span class="due-days">${label}</span>
+      </div>`;
+  }).join('')}</div>`;
+}
+
+function renderRecentTransactions(txs, limit) {
+  const sorted = [...txs].sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
+  if (sorted.length === 0) return '<div style="color:var(--text-dim);font-size:13px;">No transactions yet</div>';
+  return sorted.map(t => {
+    const info = getCatInfo(t.category);
+    return `
+      <div class="ledger-item" onclick="openEditTransaction('${t.id}')">
+        <div class="ledger-emoji">${info.emoji}</div>
+        <div class="ledger-info">
+          <div class="ledger-desc">${t.description || (t.type === 'income' ? 'Income' : 'Expense')}</div>
+          <div class="ledger-cat">${info.label} · ${formatDateShort(t.date)}</div>
+        </div>
+        <div class="ledger-amount ${t.type === 'income' ? 'credit' : 'debit'}">${t.type === 'income' ? '+' : '-'}${formatRM(t.amount)}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 // ══════════════════════════════════════════
@@ -919,12 +1283,12 @@ function renderPlanTab(container) {
   let uncatHtml = '';
   if (uncatItems.length > 0) {
     uncatHtml = `
-      <div class="card" style="border: 1px solid rgba(239,100,97,0.2);">
-        <div class="card-title" style="color: var(--red);">❓ Needs Categorizing (${uncatItems.length})</div>
+      <div class="card" style="border: 1px solid rgba(248,113,113,0.15);">
+        <div class="card-title" style="color: var(--red);">&#x2753; Needs Categorizing (${uncatItems.length})</div>
         ${uncatItems.map(item => `
           <div class="uncat-item">
             <div class="uncat-header">
-              <span class="uncat-desc">${item.description || 'No description'} <span style="font-size:12px;color:var(--text-dim)">${formatDateShort(item.date)}</span></span>
+              <span class="uncat-desc">${item.description || 'No description'} <span style="font-size:11px;color:var(--text-dim)">${formatDateShort(item.date)}</span></span>
               <span class="uncat-amount">RM${item.amount.toFixed(2)}</span>
             </div>
             <div class="uncat-cats">
@@ -943,24 +1307,24 @@ function renderPlanTab(container) {
     <div class="plan-summary">
       <div class="plan-stat">
         <div class="plan-stat-value" style="color:var(--green)">${formatRM(totalIncome)}</div>
-        <div class="plan-stat-label">Expected Income</div>
+        <div class="plan-stat-label">EXPECTED INCOME</div>
       </div>
       <div class="plan-stat">
         <div class="plan-stat-value" style="color:var(--orange)">${formatRM(totalExpense)}</div>
-        <div class="plan-stat-label">Fixed Costs</div>
+        <div class="plan-stat-label">FIXED COSTS</div>
       </div>
     </div>
     <div class="card">
       <div class="card-title">💰 Income Sources</div>
-      ${incomeItems.map(i => renderCommitmentItem(i, monthKey)).join('') || '<div style="color:var(--text-dim);font-size:14px;padding:8px 0;">No income sources added yet</div>'}
+      ${incomeItems.map(i => renderCommitmentItem(i, monthKey)).join('') || '<div style="color:var(--text-dim);font-size:13px;padding:8px 0;">No income sources added yet</div>'}
       <button class="add-item-btn" onclick="openAddCommitment('income')">+ Add Income Source</button>
     </div>
     <div class="card">
       <div class="card-title">🏠 Fixed Costs</div>
-      <div style="font-size:13px;color:var(--text-dim);margin-bottom:12px;">
-        ${paidCount} of ${expenseItems.length} paid — ${formatRM(paidAmount)} of ${formatRM(totalExpense)}
+      <div style="font-size:12px;color:var(--text-dim);margin-bottom:10px;">
+        ${paidCount} of ${expenseItems.length} paid &mdash; ${formatRM(paidAmount)} of ${formatRM(totalExpense)}
       </div>
-      ${expenseItems.map(i => renderCommitmentItem(i, monthKey)).join('') || '<div style="color:var(--text-dim);font-size:14px;padding:8px 0;">No fixed costs added yet</div>'}
+      ${expenseItems.map(i => renderCommitmentItem(i, monthKey)).join('') || '<div style="color:var(--text-dim);font-size:13px;padding:8px 0;">No fixed costs added yet</div>'}
       <button class="add-item-btn" onclick="openAddCommitment('expense')">+ Add Fixed Cost</button>
     </div>
   `;
@@ -968,6 +1332,9 @@ function renderPlanTab(container) {
 
 function renderCommitmentItem(item, monthKey) {
   const isPaid = item.paidMonths?.includes(monthKey);
+  const dueLabel = getDueDateLabel(item.dueDay, isPaid);
+  const dueClass = getDueDateClass(item.dueDay, isPaid);
+
   return `
     <div class="plan-item">
       <div class="plan-check ${isPaid ? 'checked' : ''}" onclick="toggleCommitment('${item.id}')">
@@ -975,10 +1342,10 @@ function renderCommitmentItem(item, monthKey) {
       </div>
       <div class="plan-item-info" onclick="openEditCommitment('${item.id}')" style="cursor:pointer;">
         <div class="plan-item-name" style="${isPaid ? 'text-decoration:line-through;opacity:0.5' : ''}">${item.name}</div>
-        ${item.dueDate ? `<div class="plan-item-due">Due: ${item.dueDate}</div>` : '<div class="plan-item-due" style="opacity:0.4;">Tap to edit</div>'}
+        ${dueLabel ? `<div class="plan-item-due ${dueClass}">${dueLabel}</div>` : '<div class="plan-item-due" style="opacity:0.4;">Tap to edit</div>'}
       </div>
       <span class="plan-item-amount ${item.type === 'income' ? 'income-amount' : 'expense-amount'}" onclick="openEditCommitment('${item.id}')" style="cursor:pointer;">${formatRM(item.amount)}</span>
-      <button class="delete-btn" onclick="deleteCommitment('${item.id}')">✕</button>
+      <button class="delete-btn" onclick="deleteCommitment('${item.id}')">&#x2715;</button>
     </div>
   `;
 }
@@ -1024,8 +1391,9 @@ function openEditCommitment(id) {
     <input class="modal-input" id="editCommitName" value="${(item.name || '').replace(/"/g, '&quot;')}" placeholder="Name" autocomplete="off">
     <div class="modal-row">
       <input class="modal-input" id="editCommitAmount" type="number" inputmode="decimal" value="${item.amount}" step="0.01" placeholder="Amount (RM)">
-      <input class="modal-input" id="editCommitDue" type="text" value="${item.dueDate || ''}" placeholder="Due date" style="max-width:140px">
+      <input class="modal-input" id="editCommitDue" type="number" inputmode="numeric" min="1" max="31" value="${item.dueDay || ''}" placeholder="Due day (1-31)" style="max-width:130px">
     </div>
+    <div style="font-size:11px;color:var(--text-dim);margin:-6px 0 12px;">Enter the day of the month (e.g. 15 for the 15th)</div>
     <button class="modal-save-btn" onclick="saveEditCommitment('${id}')">Save Changes</button>
     <button class="modal-delete-btn" onclick="deleteCommitment('${id}');closeModalForce()">Delete</button>
   `;
@@ -1038,7 +1406,10 @@ async function saveEditCommitment(id) {
   if (!item) return;
   item.name = document.getElementById('editCommitName').value.trim() || item.name;
   item.amount = parseFloat(document.getElementById('editCommitAmount').value) || item.amount;
-  item.dueDate = document.getElementById('editCommitDue').value.trim() || null;
+  const dueVal = document.getElementById('editCommitDue').value.trim();
+  item.dueDay = dueVal ? parseInt(dueVal) : null;
+  // Migrate old dueDate string
+  if (item.dueDate) delete item.dueDate;
   await dbPut('commitments', item);
   closeModalForce();
   showToast('Updated');
@@ -1063,8 +1434,9 @@ function openAddCommitment(type) {
     <input class="modal-input" id="commitName" placeholder="${type === 'income' ? 'e.g. Salary, Freelance' : 'e.g. Rent, WiFi, Spotify'}" autocomplete="off">
     <div class="modal-row">
       <input class="modal-input" id="commitAmount" type="number" inputmode="decimal" placeholder="Amount (RM)" step="0.01">
-      <input class="modal-input" id="commitDue" type="text" placeholder="Due date (optional)" style="max-width:140px">
+      <input class="modal-input" id="commitDue" type="number" inputmode="numeric" min="1" max="31" placeholder="Due day" style="max-width:120px">
     </div>
+    <div style="font-size:11px;color:var(--text-dim);margin:-6px 0 12px;">Day of month when payment is due (1-31)</div>
     <button class="modal-save-btn" onclick="saveCommitment('${type}')">Save</button>
   `;
   document.getElementById('modalOverlay').classList.add('show');
@@ -1074,9 +1446,13 @@ function openAddCommitment(type) {
 async function saveCommitment(type) {
   const name = document.getElementById('commitName').value.trim();
   const amount = parseFloat(document.getElementById('commitAmount').value);
-  const due = document.getElementById('commitDue').value.trim();
+  const dueVal = document.getElementById('commitDue').value.trim();
   if (!name || !amount) { showToast('Fill in name and amount'); return; }
-  const item = { id: genId(), type, name, amount, dueDate: due || null, paidMonths: [], createdAt: Date.now() };
+  const item = {
+    id: genId(), type, name, amount,
+    dueDay: dueVal ? parseInt(dueVal) : null,
+    paidMonths: [], createdAt: Date.now()
+  };
   await dbPut('commitments', item);
   allCommitments.push(item);
   closeModalForce();
@@ -1085,38 +1461,18 @@ async function saveCommitment(type) {
 }
 
 // ══════════════════════════════════════════
-// OVERVIEW TAB
+// HISTORY TAB
 // ══════════════════════════════════════════
-function renderOverviewTab(container) {
+function renderHistoryTab(container) {
   const monthKey = overviewMonthKey;
   const isCurrentMonth = monthKey === getCurrentMonthKey();
   const monthTx = allTransactions.filter(t => t.date.startsWith(monthKey));
   const totalIncome = monthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const totalExpense = monthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-  const remaining = totalIncome - totalExpense;
-  const spentPct = totalIncome > 0 ? Math.min((totalExpense / totalIncome) * 100, 100) : 0;
 
-  let barColor = 'var(--green)';
-  if (spentPct > 75) barColor = 'var(--orange)';
-  if (spentPct > 95) barColor = 'var(--red)';
-
-  // Current month category totals
-  const catTotals = {};
-  monthTx.filter(t => t.type === 'expense').forEach(t => {
-    if (!catTotals[t.category]) catTotals[t.category] = 0;
-    catTotals[t.category] += t.amount;
-  });
-  const sortedCats = Object.entries(catTotals).sort((a, b) => b[1] - a[1]);
-  const maxCatAmount = sortedCats.length > 0 ? sortedCats[0][1] : 1;
-
-  // Previous month category totals for comparison
+  // Previous month for comparison
   const prevMonthKey = getMonthKeyOffset(monthKey, -1);
   const prevMonthTx = allTransactions.filter(t => t.date.startsWith(prevMonthKey));
-  const prevCatTotals = {};
-  prevMonthTx.filter(t => t.type === 'expense').forEach(t => {
-    if (!prevCatTotals[t.category]) prevCatTotals[t.category] = 0;
-    prevCatTotals[t.category] += t.amount;
-  });
   const prevTotalExpense = prevMonthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const prevTotalIncome = prevMonthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
 
@@ -1126,25 +1482,8 @@ function renderOverviewTab(container) {
     const diff = current - previous;
     const pct = Math.round(Math.abs(diff / previous) * 100);
     if (pct < 1) return `<span class="compare-badge neutral">same</span>`;
-    if (diff > 0) return `<span class="compare-badge up">▲ ${pct}%</span>`;
-    return `<span class="compare-badge down">▼ ${pct}%</span>`;
-  }
-
-  // Budget alert HTML
-  let budgetAlertsHtml = '';
-  const alertItems = [];
-  for (const [catId, limit] of Object.entries(budgetLimits)) {
-    const spent = catTotals[catId] || 0;
-    const pct = Math.round((spent / limit) * 100);
-    const info = getCatInfo(catId);
-    if (pct >= 80 && pct < 100) {
-      alertItems.push(`<div class="budget-alert warning">${info.emoji} ${info.label}: ${formatRM(spent)} of ${formatRM(limit)} (${pct}%) — approaching limit</div>`);
-    } else if (pct >= 100) {
-      alertItems.push(`<div class="budget-alert over">${info.emoji} ${info.label}: ${formatRM(spent)} of ${formatRM(limit)} (${pct}%) — over budget!</div>`);
-    }
-  }
-  if (alertItems.length > 0) {
-    budgetAlertsHtml = alertItems.join('');
+    if (diff > 0) return `<span class="compare-badge up">&#x25B2; ${pct}%</span>`;
+    return `<span class="compare-badge down">&#x25BC; ${pct}%</span>`;
   }
 
   const txByDate = {};
@@ -1153,86 +1492,28 @@ function renderOverviewTab(container) {
     txByDate[t.date].push(t);
   });
 
-  const [mkY, mkM] = monthKey.split('-').map(Number);
-  const daysInMonth = new Date(mkY, mkM, 0).getDate();
-  const dayOfMonth = isCurrentMonth ? new Date().getDate() : daysInMonth;
-  const dailyBurn = dayOfMonth > 0 ? totalExpense / dayOfMonth : 0;
-
-  // Overall comparison badge
-  const totalCompareBadge = compareBadge(totalExpense, prevTotalExpense);
-
   container.innerHTML = `
     <div class="month-nav">
-      <button class="month-nav-btn" onclick="overviewPrevMonth()">‹</button>
+      <button class="month-nav-btn" onclick="overviewPrevMonth()">&#x2039;</button>
       <div class="month-nav-label">${formatMonthLabel(monthKey)}</div>
-      <button class="month-nav-btn" onclick="overviewNextMonth()">›</button>
+      <button class="month-nav-btn" onclick="overviewNextMonth()">&#x203A;</button>
     </div>
 
-    <div class="overview-hero">
-      <div class="overview-remaining ${remaining >= 0 ? 'positive' : 'negative'}">${remaining >= 0 ? '' : '-'}${formatRM(Math.abs(remaining))}</div>
-      <div class="overview-label">${isCurrentMonth ? 'remaining this month' : 'net for this month'}</div>
-      <div class="overview-flow">
-        <div class="flow-item"><span class="flow-dot in"></span> ${formatRM(totalIncome)} ${compareBadge(totalIncome, prevTotalIncome)}</div>
-        <div class="flow-item"><span class="flow-dot out"></span> ${formatRM(totalExpense)} ${totalCompareBadge}</div>
+    <div class="dash-flow" style="margin-bottom:16px;">
+      <div class="dash-flow-card">
+        <div class="dash-flow-icon inc">INCOME ${compareBadge(totalIncome, prevTotalIncome)}</div>
+        <div class="dash-flow-val" style="color:var(--green)">${formatRM(totalIncome)}</div>
       </div>
-    </div>
-
-    ${budgetAlertsHtml}
-
-    ${isCurrentMonth ? `<button class="reconcile-btn" onclick="openReconcile()">📄 Reconcile Bank Statement</button>` : ''}
-
-    <div class="card">
-      <div class="spending-bar-container">
-        <div class="spending-bar">
-          <div class="spending-bar-fill" style="width:${spentPct}%;background:${barColor}"></div>
-        </div>
-        <div class="spending-bar-label">
-          <span>${spentPct.toFixed(0)}% spent</span>
-          <span>~${formatRM(dailyBurn)}/day</span>
-        </div>
+      <div class="dash-flow-card">
+        <div class="dash-flow-icon exp">EXPENSES ${compareBadge(totalExpense, prevTotalExpense)}</div>
+        <div class="dash-flow-val">${formatRM(totalExpense)}</div>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
-        <span>Spending by Category</span>
-        <button class="budget-set-btn" onclick="openBudgetSettings()">Set Budgets</button>
-      </div>
-      ${sortedCats.length === 0 ? '<div style="color:var(--text-dim);font-size:14px;">No spending recorded yet</div>' : ''}
-      ${sortedCats.map(([catId, total]) => {
-        const info = getCatInfo(catId);
-        const pct = totalExpense > 0 ? ((total / totalExpense) * 100).toFixed(0) : 0;
-        const barW = (total / maxCatAmount) * 100;
-        const prevTotal = prevCatTotals[catId] || 0;
-        const badge = compareBadge(total, prevTotal);
-        const limit = budgetLimits[catId];
-        let budgetInfo = '';
-        if (limit) {
-          const bPct = Math.round((total / limit) * 100);
-          const bColor = bPct >= 100 ? 'var(--red)' : bPct >= 80 ? 'var(--orange)' : 'var(--text-dim)';
-          budgetInfo = `<span style="font-size:11px;color:${bColor};margin-left:4px;">${bPct}% of ${formatRM(limit)}</span>`;
-        }
-        return `
-          <div class="cat-item">
-            <div class="cat-emoji">${info.emoji}</div>
-            <div class="cat-info">
-              <div class="cat-name">${info.label} ${badge}</div>
-              <div class="cat-bar-bg"><div class="cat-bar-fill" style="width:${barW}%;background:${info.color}"></div></div>
-              ${budgetInfo ? `<div style="margin-top:2px;">${budgetInfo}</div>` : ''}
-            </div>
-            <div>
-              <div class="cat-amount">${formatRM(total)}</div>
-              <div class="cat-percent">${pct}%</div>
-            </div>
-          </div>
-        `;
-      }).join('')}
     </div>
 
     <div class="card">
       <div class="card-title">Transaction History</div>
-      <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;">Tap any entry to edit</div>
-      ${Object.keys(txByDate).length === 0 ? '<div style="color:var(--text-dim);font-size:14px;">No transactions yet — start logging!</div>' : ''}
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Tap any entry to edit</div>
+      ${Object.keys(txByDate).length === 0 ? '<div style="color:var(--text-dim);font-size:13px;">No transactions yet</div>' : ''}
       ${Object.entries(txByDate).map(([date, txs]) => `
         <div class="ledger-date">${formatDate(date)}</div>
         ${txs.map(t => {
@@ -1254,43 +1535,37 @@ function renderOverviewTab(container) {
 }
 
 // ══════════════════════════════════════════
-// RECONCILIATION
+// RECONCILE TAB
 // ══════════════════════════════════════════
-function openReconcile() {
-  const overlay = document.getElementById('reconOverlay');
-  const content = document.getElementById('reconContent');
-
+function renderReconcileTab(container) {
   if (reconData.length === 0) {
-    content.innerHTML = `
+    container.innerHTML = `
       <div class="file-upload-area" onclick="document.getElementById('csvFileInput').click()">
         <div class="file-upload-icon">📄</div>
         <div class="file-upload-text">Upload Statement</div>
         <div class="file-upload-hint">
-          <strong>Touch 'n Go eWallet</strong> — PDF from email or ePortal<br>
-          <strong>Bank statements</strong> — CSV from Maybank, CIMB, Public Bank, etc.
+          <strong>Touch 'n Go eWallet</strong> &mdash; PDF from email or ePortal<br>
+          <strong>UOB Credit Card</strong> &mdash; eStatement PDF<br>
+          <strong>Bank statements</strong> &mdash; CSV from Maybank, CIMB, etc.
         </div>
       </div>
       <div class="card">
         <div class="card-title">How it works</div>
-        <div style="font-size:14px;color:var(--text-dim);line-height:1.6;">
-          1. Download your statement (PDF for TNG, CSV for banks)<br>
+        <div style="font-size:13px;color:var(--text-dim);line-height:1.6;">
+          1. Download your statement (PDF or CSV)<br>
           2. Upload it here<br>
-          3. The app matches each transaction against your logs<br>
-          4. Review anything that doesn't match — log what you missed
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">Getting your TNG statement</div>
-        <div style="font-size:14px;color:var(--text-dim);line-height:1.6;">
-          In TNG eWallet app → Transactions → View All → tap Email (top right) → download the PDF from your email
+          3. The app matches transactions against your logs<br>
+          4. Review anything that doesn't match
         </div>
       </div>
     `;
   } else {
-    renderReconcileResults(content);
+    renderReconcileResults(container);
   }
+}
 
-  overlay.classList.add('show');
+function openReconcile() {
+  switchTab('reconcile');
 }
 
 function closeReconcile() {
@@ -1323,16 +1598,17 @@ async function handleFileUpload(event) {
     return;
   }
   showToast(`${reconData.length} transactions found`);
-  renderReconcileResults(document.getElementById('reconContent'));
+  renderReconcileResults(document.getElementById('tabContent'));
 }
 
-// ── PDF PARSING (TNG eWallet + generic) ──
+// ══════════════════════════════════════════
+// PDF PARSING (TNG + UOB + generic)
+// ══════════════════════════════════════════
 async function parsePDF(file) {
   const arrayBuffer = await file.arrayBuffer();
   const pdfjsLib = window['pdfjs-dist/build/pdf'] || window.pdfjsLib;
   pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-  // Handle password-protected PDFs (e.g. TNG eWallet statements use IC number)
   const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
   loadingTask.onPassword = (updatePassword, reason) => {
     const msg = reason === 1
@@ -1347,7 +1623,6 @@ async function parsePDF(file) {
   };
   const pdf = await loadingTask.promise;
 
-  // Extract ALL text items with positions across all pages
   let allItems = [];
   let allTextSimple = '';
 
@@ -1360,13 +1635,12 @@ async function parsePDF(file) {
       if (!item.str.trim()) return;
       allItems.push({
         text: item.str.trim(),
-        x: Math.round(item.transform[4]) + (i - 1) * 10000, // separate pages in X space
-        y: Math.round(pageHeight - item.transform[5]), // page-relative Y (top=0)
+        x: Math.round(item.transform[4]) + (i - 1) * 10000,
+        y: Math.round(pageHeight - item.transform[5]),
         page: i,
       });
     });
 
-    // Also build simple text for TNG detection
     const lines = [];
     let lastY = null, currentLine = '';
     content.items.forEach(item => {
@@ -1379,24 +1653,22 @@ async function parsePDF(file) {
     allTextSimple += lines.join('\n') + '\n';
   }
 
-  // Detect if this is a TNG eWallet statement
+  // Detect statement type
   const isTNG = /touch.*n.*go|tng.*wallet|tng.*transaction|e-?wallet.*transaction/i.test(allTextSimple);
+  const isUOB = /uob|united overseas bank/i.test(allTextSimple) && /credit card|card statement/i.test(allTextSimple);
 
   if (isTNG) {
     return parseTNGTable(allItems);
+  } else if (isUOB) {
+    return parseUOBStatement(allTextSimple);
   } else {
     return parseGenericPDFStatement(allTextSimple);
   }
 }
 
-// Parse TNG using positioned text items — TABLE IS TRANSPOSED (each transaction = a column)
-// Items with similar X = same transaction. Y position = which field (Date, Type, Description, Amount, etc.)
+// ── TNG eWallet Parser (transposed table) ──
 function parseTNGTable(items) {
   const results = [];
-
-  // Step 1: Find field Y positions from header items
-  // Headers are at consistent Y positions: Date≈822, Status≈762, Type≈702, Ref≈612, Desc≈547, Details≈382, Amount≈166-184, Balance≈60-92
-  // We detect them dynamically from the first occurrence of header labels
   const fieldRanges = {
     date:    { min: 780, max: 850 },
     status:  { min: 730, max: 780 },
@@ -1408,14 +1680,11 @@ function parseTNGTable(items) {
     balance: { min: 0,   max: 130 },
   };
 
-  // Step 2: Group items into transaction columns by X proximity
-  // Each transaction column spans ~30px in X (multi-line cells offset by ~12px)
   items.sort((a, b) => a.x - b.x || a.y - b.y);
   const columns = [];
   let currentCol = [items[0]];
 
   for (let i = 1; i < items.length; i++) {
-    // Items within 30px X belong to the same transaction column
     if (Math.abs(items[i].x - currentCol[0].x) <= 30) {
       currentCol.push(items[i]);
     } else {
@@ -1425,22 +1694,13 @@ function parseTNGTable(items) {
   }
   if (currentCol.length > 0) columns.push(currentCol);
 
-  console.log('=== TNG COLUMN PARSER: found', columns.length, 'columns ===');
-
-  // Transaction types to SKIP (not spending)
   const skipTypes = ['reload', 'transfer to wallet', 'receive from wallet',
     'credit / debit card', 'quick reload', 'fund transfer',
     'go+ cash in', 'go+ daily earnings', 'go+ cash out'];
 
-  // Step 3: Parse each column as a transaction
   for (const col of columns) {
-    // Extract fields by Y position
-    let date = '', status = '', txType = '', desc = '', amount = 0;
-
-    const dateItems = [];
-    const typeItems = [];
-    const descItems = [];
-    const amountItems = [];
+    let date = '', txType = '', desc = '', amount = 0;
+    const dateItems = [], typeItems = [], descItems = [], amountItems = [];
 
     for (const item of col) {
       const y = item.y;
@@ -1450,36 +1710,27 @@ function parseTNGTable(items) {
       else if (y >= fieldRanges.amount.min && y < fieldRanges.amount.max) amountItems.push(item.text);
     }
 
-    // Parse date
     const dateText = dateItems.join(' ');
     const dateMatch = dateText.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-    if (!dateMatch) continue; // Not a transaction column (header, footer, etc.)
+    if (!dateMatch) continue;
     date = `${dateMatch[3]}-${dateMatch[2].padStart(2,'0')}-${dateMatch[1].padStart(2,'0')}`;
 
-    // Parse transaction type (strip reference numbers that pdf.js sometimes merges in)
     txType = typeItems.join(' ').trim().replace(/\d{10,}/g, '').trim();
     const txTypeLower = txType.toLowerCase();
 
-    // Skip non-spending transactions
-    const isSkip = skipTypes.some(t => txTypeLower.includes(t));
-    if (isSkip) continue;
-    // Skip card reload (not real spending)
+    if (skipTypes.some(t => txTypeLower.includes(t))) continue;
     if (descItems.join(' ').toLowerCase().includes('card reload')) continue;
 
-    // Parse amount
     const amountText = amountItems.join(' ');
     const amtMatch = amountText.match(/([\d,]+\.\d{2})/);
     if (!amtMatch) continue;
     amount = parseFloat(amtMatch[1].replace(/,/g, ''));
     if (!amount || amount <= 0) continue;
 
-    // Parse description (merchant name) — this is the actual Description field from the PDF
-    desc = descItems.join(' ').trim();
-    // Clean minor noise from description
-    desc = desc.replace(/\(?\s*via GO\+[^)]*\)?/gi, '').replace(/GO\+/gi, '').trim();
-    desc = desc.replace(/\bvia eWallet to\b/gi, '').trim();
+    desc = descItems.join(' ').trim()
+      .replace(/\(?\s*via GO\+[^)]*\)?/gi, '').replace(/GO\+/gi, '').trim()
+      .replace(/\bvia eWallet to\b/gi, '').trim();
 
-    // Determine display type label
     let typeLabel = '';
     if (txTypeLower.includes('duitnow qr')) typeLabel = 'DuitNow QR';
     else if (txTypeLower.includes('rfid payment')) typeLabel = 'RFID';
@@ -1489,7 +1740,6 @@ function parseTNGTable(items) {
     else if (txTypeLower.includes('paydirect')) typeLabel = 'PayDirect';
     else typeLabel = txType.replace(/\b\d{5,}\b/g, '').trim();
 
-    // Build final description
     let description = '';
     if (desc && desc.length > 1) {
       description = typeLabel ? typeLabel + ': ' + desc : desc;
@@ -1497,21 +1747,12 @@ function parseTNGTable(items) {
       description = typeLabel || txType || 'TNG Transaction';
     }
 
-    console.log('=== TNG TX:', date, amount, typeLabel, '→', desc, '===');
-
     results.push({
-      date,
-      description: description.substring(0, 100),
-      amount,
-      matched: false,
-      matchedTxId: null,
-      skipped: false,
-      logged: false,
-      source: 'tng',
+      date, description: description.substring(0, 100), amount,
+      matched: false, matchedTxId: null, skipped: false, logged: false, source: 'tng',
     });
   }
 
-  // Deduplicate
   const seen = new Set();
   return results.filter(r => {
     const key = `${r.date}_${r.amount}_${r.description}`;
@@ -1521,6 +1762,81 @@ function parseTNGTable(items) {
   });
 }
 
+// ── UOB Credit Card Statement Parser ──
+function parseUOBStatement(text) {
+  const results = [];
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l);
+
+  // UOB format: DD MMM   DESCRIPTION   LOCATION   COUNTRY   AMOUNT [CR]
+  // Months: JAN, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC
+  const monthMap = { JAN: '01', FEB: '02', MAR: '03', APR: '04', MAY: '05', JUN: '06',
+    JUL: '07', AUG: '08', SEP: '09', OCT: '10', NOV: '11', DEC: '12' };
+
+  // Find statement year from "STATEMENT DATE" or date patterns
+  let stmtYear = new Date().getFullYear();
+  for (const line of lines) {
+    const stmtDateMatch = line.match(/(\d{1,2})\s+(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s+(\d{2,4})/i);
+    if (stmtDateMatch) {
+      const yr = stmtDateMatch[3];
+      stmtYear = yr.length === 2 ? 2000 + parseInt(yr) : parseInt(yr);
+      break;
+    }
+  }
+
+  // Skip lines that are clearly not transactions
+  const skipPatterns = [
+    /statement date/i, /payment due/i, /credit limit/i, /available/i,
+    /minimum payment/i, /previous balance/i, /new balance/i, /total/i,
+    /page \d/i, /uob/i, /card number/i, /^date\s+description/i,
+    /finance charge/i, /annual fee/i, /sub-total/i
+  ];
+
+  for (const line of lines) {
+    // Skip non-transaction lines
+    if (skipPatterns.some(p => p.test(line))) continue;
+
+    // Match: DD MMM ... AMOUNT [CR]
+    const txMatch = line.match(/^(\d{1,2})\s+(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\s+(.+?)\s+([\d,]+\.\d{2})\s*(CR)?$/i);
+    if (!txMatch) continue;
+
+    const day = txMatch[1].padStart(2, '0');
+    const month = monthMap[txMatch[2].toUpperCase()];
+    if (!month) continue;
+
+    const date = `${stmtYear}-${month}-${day}`;
+    const rawDesc = txMatch[3].trim();
+    const amount = parseFloat(txMatch[4].replace(/,/g, ''));
+    const isCredit = !!txMatch[5];
+
+    if (!amount || amount <= 0) continue;
+
+    // Clean description — remove location/country codes at end
+    let description = rawDesc;
+    // Remove trailing country code (2 chars like MY, SG, IE, US)
+    description = description.replace(/\s+[A-Z]{2}$/, '').trim();
+    // Remove trailing city/location (common pattern: KUALA LUMPUR, PETALING JAYA, etc.)
+    // Keep it for context but clean up excessive whitespace
+    description = description.replace(/\s{2,}/g, ' ').trim();
+
+    if (description.length < 2) continue;
+
+    results.push({
+      date,
+      description: description.substring(0, 80),
+      amount,
+      matched: false,
+      matchedTxId: null,
+      skipped: false,
+      logged: false,
+      source: 'uob',
+      isCredit,
+    });
+  }
+
+  return results;
+}
+
+// ── Generic PDF Parser ──
 function parseGenericPDFStatement(text) {
   const results = [];
   const lines = text.split('\n').map(l => l.trim()).filter(l => l);
@@ -1546,15 +1862,14 @@ function parseGenericPDFStatement(text) {
     if (description.length < 2) continue;
 
     results.push({
-      date: currentDate || '',
-      description: description.substring(0, 80) || 'Transaction',
+      date: currentDate || '', description: description.substring(0, 80) || 'Transaction',
       amount, matched: false, matchedTxId: null, skipped: false, logged: false,
     });
   }
   return results;
 }
 
-// ── CSV PARSING (Bank statements) ──
+// ── CSV Parsing ──
 function parseCSV(text) {
   const lines = text.split('\n').map(l => l.trim()).filter(l => l);
   if (lines.length < 2) return [];
@@ -1627,21 +1942,20 @@ function tryParseDate(str) {
   return null;
 }
 
+// ══════════════════════════════════════════
+// RECONCILE MATCHING & RENDERING
+// ══════════════════════════════════════════
 function matchTransactions() {
   const monthKey = getCurrentMonthKey();
   const monthTx = allTransactions.filter(t => t.type === 'expense' && t.date.startsWith(monthKey));
-
-  // Track which logged transactions have been matched
   const usedTxIds = new Set();
 
   for (const row of reconData) {
+    if (row.isCredit) { row.matched = true; continue; } // Skip credit/refund items
     row.matched = false;
     row.matchedTxId = null;
 
-    // Try exact amount + same date match first
     let match = monthTx.find(t => !usedTxIds.has(t.id) && Math.abs(t.amount - row.amount) < 0.01 && t.date === row.date);
-
-    // Try amount + nearby date (within 2 days)
     if (!match) {
       match = monthTx.find(t => {
         if (usedTxIds.has(t.id)) return false;
@@ -1651,8 +1965,6 @@ function matchTransactions() {
         return Math.abs(d1 - d2) <= 2 * 86400000;
       });
     }
-
-    // Try amount-only match
     if (!match) {
       match = monthTx.find(t => !usedTxIds.has(t.id) && Math.abs(t.amount - row.amount) < 0.01);
     }
@@ -1671,13 +1983,12 @@ function renderReconcileResults(container) {
   const matched = reconData.filter(r => r.matched || r.skipped || r.logged);
   const unmatched = reconData.filter(r => !r.matched && !r.skipped && !r.logged);
   const totalBank = reconData.reduce((s, r) => s + r.amount, 0);
-  const matchedAmount = matched.reduce((s, r) => s + r.amount, 0);
 
   container.innerHTML = `
     <div class="recon-summary">
       <div class="recon-stat">
         <div class="recon-stat-val">${reconData.length}</div>
-        <div class="recon-stat-label">Bank Entries</div>
+        <div class="recon-stat-label">Total</div>
       </div>
       <div class="recon-stat">
         <div class="recon-stat-val" style="color:var(--green)">${matched.length}</div>
@@ -1690,7 +2001,7 @@ function renderReconcileResults(container) {
     </div>
 
     ${unmatched.length > 0 ? `
-      <div class="card-title" style="color:var(--orange);">⚠️ Possibly Missed (${unmatched.length})</div>
+      <div class="card-title" style="color:var(--orange);">&#x26A0;&#xFE0F; Possibly Missed (${unmatched.length})</div>
       ${unmatched.map((r) => {
         const origIdx = reconData.indexOf(r);
         return `
@@ -1698,7 +2009,7 @@ function renderReconcileResults(container) {
           <div class="recon-row">
             <div>
               <div class="recon-desc">${r.description}</div>
-              <div class="recon-date">${r.date ? formatDateShort(r.date) : 'No date'}</div>
+              <div class="recon-date">${r.date ? formatDateShort(r.date) : 'No date'}${r.source ? ` · ${r.source.toUpperCase()}` : ''}</div>
             </div>
             <div class="recon-amount">${formatRM(r.amount)}</div>
           </div>
@@ -1709,10 +2020,10 @@ function renderReconcileResults(container) {
           </div>
         </div>`;
       }).join('')}
-    ` : '<div style="text-align:center;padding:20px;color:var(--green);font-weight:600;font-size:16px;">All transactions accounted for!</div>'}
+    ` : '<div style="text-align:center;padding:20px;color:var(--green);font-weight:600;font-size:15px;">All transactions accounted for!</div>'}
 
     ${matched.length > 0 ? `
-      <div class="card-title" style="margin-top:16px;">✓ Matched / Resolved (${matched.length})</div>
+      <div class="card-title" style="margin-top:16px;">&#x2713; Matched / Resolved (${matched.length})</div>
       ${matched.map(r => `
         <div class="recon-item matched">
           <div class="recon-row">
@@ -1722,7 +2033,7 @@ function renderReconcileResults(container) {
             </div>
             <div class="recon-amount">${formatRM(r.amount)}</div>
           </div>
-          <div class="recon-status found">${r.matched ? 'Matched' : r.logged ? 'Logged' : 'Skipped'}</div>
+          <div class="recon-status found">${r.matched ? (r.isCredit ? 'Credit/Refund' : 'Matched') : r.logged ? 'Logged' : 'Skipped'}</div>
         </div>
       `).join('')}
     ` : ''}
@@ -1737,7 +2048,7 @@ function reconShowCategories(idx) {
   actionsDiv.innerHTML = `
     <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
       ${cats.map(c => `
-        <button class="recon-action-btn add" style="font-size:13px;padding:6px 10px;"
+        <button class="recon-action-btn add" style="font-size:12px;padding:6px 10px;"
           onclick="reconAddToLog(${idx},'${c.id}')">${c.emoji} ${c.label}</button>
       `).join('')}
     </div>
@@ -1757,17 +2068,17 @@ async function reconAddToLog(idx, category) {
   r.logged = true;
   const catObj = CATEGORIES.find(c => c.id === category);
   showToast(`RM${r.amount.toFixed(2)} logged as ${catObj ? catObj.label : category}`);
-  renderReconcileResults(document.getElementById('reconContent'));
+  renderReconcileResults(document.getElementById('tabContent'));
 }
 
 function reconSkip(idx) {
   reconData[idx].skipped = true;
-  renderReconcileResults(document.getElementById('reconContent'));
+  renderReconcileResults(document.getElementById('tabContent'));
 }
 
 function reconReset() {
   reconData = [];
-  openReconcile();
+  renderCurrentTab();
 }
 
 // ══════════════════════════════════════════
@@ -1781,14 +2092,14 @@ function openSettings() {
     <div class="settings-item">
       <div>
         <div class="settings-item-label">Export Data</div>
-        <div class="settings-item-desc">Download all transactions, commitments & settings as JSON</div>
+        <div class="settings-item-desc">Download all data as JSON backup</div>
       </div>
       <button class="settings-item-action" onclick="exportData()">Export</button>
     </div>
     <div class="settings-item">
       <div>
         <div class="settings-item-label">Import Data</div>
-        <div class="settings-item-desc">Restore from a previously exported JSON backup</div>
+        <div class="settings-item-desc">Restore from a JSON backup</div>
       </div>
       <button class="settings-item-action" onclick="document.getElementById('jsonImportInput').click()">Import</button>
     </div>
@@ -1812,7 +2123,7 @@ function openSettings() {
 
 function exportData() {
   const data = {
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     transactions: allTransactions,
     commitments: allCommitments,
@@ -1840,7 +2151,6 @@ async function handleImport(event) {
       showToast('Invalid backup file');
       return;
     }
-    // Merge or replace — replace for simplicity
     const count = { tx: 0, cm: 0 };
     for (const t of data.transactions) {
       await dbPut('transactions', t);
@@ -1850,6 +2160,12 @@ async function handleImport(event) {
 
     if (data.commitments) {
       for (const c of data.commitments) {
+        // Migrate old dueDate to dueDay
+        if (c.dueDate && !c.dueDay) {
+          const dayMatch = c.dueDate.match(/(\d{1,2})/);
+          if (dayMatch) c.dueDay = parseInt(dayMatch[1]);
+          delete c.dueDate;
+        }
         await dbPut('commitments', c);
         count.cm++;
       }
@@ -1877,11 +2193,11 @@ function confirmClearData() {
   modal.innerHTML = `
     <div class="modal-handle"></div>
     <div class="modal-title" style="color:var(--red);">Clear All Data?</div>
-    <div style="font-size:14px;color:var(--text-dim);margin-bottom:20px;line-height:1.6;">
+    <div style="font-size:13px;color:var(--text-dim);margin-bottom:20px;line-height:1.6;">
       This will permanently delete all transactions, commitments, budgets, and learned categories. Export a backup first if you want to keep your data.
     </div>
     <button class="modal-save-btn" style="background:var(--red);" onclick="clearAllData()">Yes, Delete Everything</button>
-    <button class="modal-delete-btn" style="color:var(--text-dim);border-color:var(--surface2);margin-top:8px;" onclick="openSettings()">Cancel</button>
+    <button class="modal-delete-btn" style="color:var(--text-dim);border-color:var(--surface3);margin-top:8px;" onclick="openSettings()">Cancel</button>
   `;
 }
 
@@ -1909,15 +2225,15 @@ function openBudgetSettings() {
   modal.innerHTML = `
     <div class="modal-handle"></div>
     <div class="modal-title">Budget Limits</div>
-    <div style="font-size:13px;color:var(--text-dim);margin-bottom:16px;">Set monthly spending limits per category. Leave empty for no limit.</div>
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:16px;">Set monthly spending limits per category.</div>
     ${expenseCats.map(c => `
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-        <span style="font-size:20px;width:32px;text-align:center;">${c.emoji}</span>
-        <span style="flex:1;font-size:14px;font-weight:500;">${c.label}</span>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <span style="font-size:18px;width:28px;text-align:center;">${c.emoji}</span>
+        <span style="flex:1;font-size:13px;font-weight:500;">${c.label}</span>
         <div style="display:flex;align-items:center;gap:4px;">
-          <span style="font-size:14px;color:var(--text-dim);">RM</span>
+          <span style="font-size:13px;color:var(--text-dim);">RM</span>
           <input class="modal-input" id="budget_${c.id}" type="number" inputmode="decimal" step="0.01" placeholder="—"
-            value="${budgetLimits[c.id] || ''}" style="width:100px;margin:0;text-align:right;">
+            value="${budgetLimits[c.id] || ''}" style="width:90px;margin:0;text-align:right;">
         </div>
       </div>
     `).join('')}
@@ -1936,11 +2252,11 @@ async function saveBudgetLimits() {
   await dbPut('settings', { key: 'budgetLimits', value: budgetLimits });
   closeModalForce();
   showToast('Budget limits saved');
-  if (currentTab === 'overview') renderCurrentTab();
+  if (currentTab === 'dashboard') renderCurrentTab();
 }
 
 // ══════════════════════════════════════════
-// MONTH NAVIGATION HELPERS
+// MONTH NAVIGATION
 // ══════════════════════════════════════════
 function getMonthKeyOffset(baseKey, offset) {
   const [y, m] = baseKey.split('-').map(Number);
@@ -1982,6 +2298,19 @@ async function init() {
   await initDB();
   allTransactions = await dbGetAll('transactions');
   allCommitments = await dbGetAll('commitments');
+
+  // Migrate old dueDate strings to dueDay numbers
+  let needsMigration = false;
+  for (const c of allCommitments) {
+    if (c.dueDate && !c.dueDay) {
+      const dayMatch = c.dueDate.match(/(\d{1,2})/);
+      if (dayMatch) c.dueDay = parseInt(dayMatch[1]);
+      delete c.dueDate;
+      needsMigration = true;
+      await dbPut('commitments', c);
+    }
+  }
+
   try {
     const tx = db.transaction('settings', 'readonly');
     const store = tx.objectStore('settings');
