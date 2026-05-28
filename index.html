@@ -1691,8 +1691,10 @@ function renderReconcileResults(container) {
 
     ${unmatched.length > 0 ? `
       <div class="card-title" style="color:var(--orange);">⚠️ Possibly Missed (${unmatched.length})</div>
-      ${unmatched.map((r, i) => `
-        <div class="recon-item missed">
+      ${unmatched.map((r) => {
+        const origIdx = reconData.indexOf(r);
+        return `
+        <div class="recon-item missed" id="recon-item-${origIdx}">
           <div class="recon-row">
             <div>
               <div class="recon-desc">${r.description}</div>
@@ -1701,12 +1703,12 @@ function renderReconcileResults(container) {
             <div class="recon-amount">${formatRM(r.amount)}</div>
           </div>
           <div class="recon-status missing">Not found in your logs</div>
-          <div class="recon-actions">
-            <button class="recon-action-btn add" onclick="reconAddToLog(${i})">+ Log This</button>
-            <button class="recon-action-btn skip" onclick="reconSkip(${i})">Skip</button>
+          <div class="recon-actions" id="recon-actions-${origIdx}">
+            <button class="recon-action-btn add" onclick="reconShowCategories(${origIdx})">+ Log This</button>
+            <button class="recon-action-btn skip" onclick="reconSkip(${origIdx})">Skip</button>
           </div>
-        </div>
-      `).join('')}
+        </div>`;
+      }).join('')}
     ` : '<div style="text-align:center;padding:20px;color:var(--green);font-weight:600;font-size:16px;">All transactions accounted for!</div>'}
 
     ${matched.length > 0 ? `
@@ -1729,9 +1731,21 @@ function renderReconcileResults(container) {
   `;
 }
 
-async function reconAddToLog(idx) {
+function reconShowCategories(idx) {
+  const actionsDiv = document.getElementById(`recon-actions-${idx}`);
+  const cats = Object.entries(CATEGORIES).filter(([k]) => k !== 'income');
+  actionsDiv.innerHTML = `
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
+      ${cats.map(([key, cat]) => `
+        <button class="recon-action-btn add" style="font-size:13px;padding:6px 10px;"
+          onclick="reconAddToLog(${idx},'${key}')">${cat.icon} ${cat.label}</button>
+      `).join('')}
+    </div>
+  `;
+}
+
+async function reconAddToLog(idx, category) {
   const r = reconData[idx];
-  const category = autoCategory(r.description);
   const entry = {
     id: genId(), type: 'expense', amount: r.amount,
     description: r.description, category,
@@ -1741,7 +1755,7 @@ async function reconAddToLog(idx) {
   await dbPut('transactions', entry);
   allTransactions.push(entry);
   r.logged = true;
-  showToast(`RM${r.amount.toFixed(2)} logged from statement`);
+  showToast(`RM${r.amount.toFixed(2)} logged as ${CATEGORIES[category].label}`);
   renderReconcileResults(document.getElementById('reconContent'));
 }
 
