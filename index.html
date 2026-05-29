@@ -311,12 +311,28 @@ body {
 .plan-check svg { width: 13px; height: 13px; stroke: white; stroke-width: 3; fill: none; opacity: 0; transition: opacity 0.2s; }
 .plan-check.checked svg { opacity: 1; }
 
-.plan-item-info { flex: 1; }
+.plan-item-info { flex: 1; min-width: 0; }
 .plan-item-name { font-size: 14px; font-weight: 500; }
-.plan-item-due { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.plan-item-due { font-size: 11px; color: var(--text-dim); margin-top: 3px; }
 .plan-item-due.urgent { color: var(--red); font-weight: 600; }
 .plan-item-due.soon { color: var(--orange); font-weight: 600; }
-.plan-item-amount { font-size: 14px; font-weight: 600; }
+
+/* Due-date progress bar */
+.due-progress-wrap { margin-top: 6px; }
+.due-progress-track {
+  height: 4px; border-radius: 2px; background: var(--surface2);
+  overflow: hidden; position: relative;
+}
+.due-progress-fill {
+  height: 100%; border-radius: 2px;
+  transition: width 0.6s ease;
+}
+.due-progress-fill.safe   { background: var(--green); }
+.due-progress-fill.soon   { background: var(--orange); }
+.due-progress-fill.urgent { background: var(--red); }
+.due-progress-fill.done   { background: var(--green); opacity: 0.4; }
+
+.plan-item-amount { font-size: 14px; font-weight: 600; white-space: nowrap; }
 .plan-item-amount.income-amount { color: var(--green); }
 .plan-item-amount.expense-amount { color: var(--text); }
 
@@ -347,17 +363,54 @@ body {
   font-size: 11px; font-weight: 600; color: var(--text-dim);
   padding: 12px 0 4px; text-transform: uppercase; letter-spacing: 0.5px;
 }
-.ledger-item {
-  display: flex; align-items: center; gap: 12px; padding: 11px 0;
+
+/* Swipe row wrapper */
+.swipe-row {
+  position: relative;
+  overflow: hidden;
   border-bottom: 1px solid var(--surface2);
-  cursor: pointer; transition: background 0.15s; border-radius: 8px;
+  border-radius: 8px;
+  margin-bottom: 1px;
 }
+.swipe-row:last-child { border-bottom: none; margin-bottom: 0; }
+
+/* Hidden actions revealed on swipe-left */
+.swipe-actions {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  display: flex;
+  align-items: stretch;
+  transform: translateX(100%);
+  pointer-events: none;
+}
+.swipe-row.revealed .swipe-actions {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+.swipe-action-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; width: 70px; border: none; cursor: pointer;
+  font-size: 10px; font-weight: 700; font-family: inherit;
+  transition: opacity 0.1s;
+}
+.swipe-action-btn:active { opacity: 0.75; }
+.swipe-action-btn.edit { background: var(--blue); color: white; }
+.swipe-action-btn.delete { background: var(--red); color: white; border-radius: 0 8px 8px 0; }
+.swipe-action-btn .swipe-icon { font-size: 16px; }
+
+.ledger-item {
+  display: flex; align-items: center; gap: 12px; padding: 11px 8px;
+  cursor: pointer; transition: transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94), background 0.15s;
+  border-radius: 8px; background: var(--surface); will-change: transform;
+  position: relative; z-index: 1;
+}
+.swipe-row.revealed .ledger-item { transform: translateX(-140px); }
 .ledger-item:active { background: var(--surface2); }
 .ledger-emoji { font-size: 18px; width: 34px; text-align: center; }
-.ledger-info { flex: 1; }
-.ledger-desc { font-size: 13px; font-weight: 500; }
+.ledger-info { flex: 1; min-width: 0; }
+.ledger-desc { font-size: 13px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ledger-cat { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
-.ledger-amount { font-size: 14px; font-weight: 600; }
+.ledger-amount { font-size: 14px; font-weight: 600; white-space: nowrap; }
 .ledger-amount.credit { color: var(--green); }
 .ledger-amount.debit { color: var(--text); }
 
@@ -1267,13 +1320,15 @@ function buildDueAlerts(monthKey) {
   }).join('')}</div>`;
 }
 
-function renderRecentTransactions(txs, limit) {
-  const sorted = [...txs].sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
-  if (sorted.length === 0) return '<div style="color:var(--text-dim);font-size:13px;">No transactions yet</div>';
-  return sorted.map(t => {
-    const info = getCatInfo(t.category);
-    return `
-      <div class="ledger-item" onclick="openEditTransaction('${t.id}')">
+function renderLedgerItem(t) {
+  const info = getCatInfo(t.category);
+  return `
+    <div class="swipe-row" id="swipe-${t.id}">
+      <div class="ledger-item" data-id="${t.id}"
+           ontouchstart="swipeStart(event,'${t.id}')"
+           ontouchmove="swipeMove(event,'${t.id}')"
+           ontouchend="swipeEnd(event,'${t.id}')"
+           onclick="ledgerTap('${t.id}')">
         <div class="ledger-emoji">${info.emoji}</div>
         <div class="ledger-info">
           <div class="ledger-desc">${t.description || (t.type === 'income' ? 'Income' : 'Expense')}</div>
@@ -1281,8 +1336,22 @@ function renderRecentTransactions(txs, limit) {
         </div>
         <div class="ledger-amount ${t.type === 'income' ? 'credit' : 'debit'}">${t.type === 'income' ? '+' : '-'}${formatRM(t.amount)}</div>
       </div>
-    `;
-  }).join('');
+      <div class="swipe-actions">
+        <button class="swipe-action-btn edit" onclick="swipeEdit('${t.id}')">
+          <span class="swipe-icon">✏️</span>Edit
+        </button>
+        <button class="swipe-action-btn delete" onclick="swipeDelete('${t.id}')">
+          <span class="swipe-icon">🗑️</span>Delete
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderRecentTransactions(txs, limit) {
+  const sorted = [...txs].sort((a, b) => b.timestamp - a.timestamp).slice(0, limit);
+  if (sorted.length === 0) return '<div style="color:var(--text-dim);font-size:13px;">No transactions yet</div>';
+  return sorted.map(renderLedgerItem).join('');
 }
 
 // ══════════════════════════════════════════
@@ -1352,6 +1421,7 @@ function renderCommitmentItem(item, monthKey) {
   const isPaid = item.paidMonths?.includes(monthKey);
   const dueLabel = getDueDateLabel(item.dueDay, isPaid);
   const dueClass = getDueDateClass(item.dueDay, isPaid);
+  const progressBar = item.dueDay && item.type === 'expense' ? buildDueProgressBar(item.dueDay, isPaid) : '';
 
   return `
     <div class="plan-item">
@@ -1360,12 +1430,26 @@ function renderCommitmentItem(item, monthKey) {
       </div>
       <div class="plan-item-info" onclick="openEditCommitment('${item.id}')" style="cursor:pointer;">
         <div class="plan-item-name" style="${isPaid ? 'text-decoration:line-through;opacity:0.5' : ''}">${item.name}</div>
-        ${dueLabel ? `<div class="plan-item-due ${dueClass}">${dueLabel}</div>` : '<div class="plan-item-due" style="opacity:0.4;">Tap to edit</div>'}
+        ${dueLabel ? `<div class="plan-item-due ${dueClass}">${dueLabel}</div>` : '<div class="plan-item-due" style="opacity:0.4;">Tap to set due day</div>'}
+        ${progressBar}
       </div>
       <span class="plan-item-amount ${item.type === 'income' ? 'income-amount' : 'expense-amount'}" onclick="openEditCommitment('${item.id}')" style="cursor:pointer;">${formatRM(item.amount)}</span>
-      <button class="delete-btn" onclick="deleteCommitment('${item.id}')">&#x2715;</button>
     </div>
   `;
+}
+
+function buildDueProgressBar(dueDay, isPaid) {
+  if (isPaid) {
+    return `<div class="due-progress-wrap"><div class="due-progress-track"><div class="due-progress-fill done" style="width:100%"></div></div></div>`;
+  }
+  const days = getDaysUntilDue(dueDay);
+  if (days === null) return '';
+  // Progress = how far through the billing window we are (assume 30-day cycle)
+  const totalCycle = 30;
+  const elapsed = Math.max(0, Math.min(totalCycle, totalCycle - days));
+  const pct = Math.round((elapsed / totalCycle) * 100);
+  const cls = days <= 3 ? 'urgent' : days <= 7 ? 'soon' : 'safe';
+  return `<div class="due-progress-wrap"><div class="due-progress-track"><div class="due-progress-fill ${cls}" style="width:${pct}%"></div></div></div>`;
 }
 
 async function toggleCommitment(id) {
@@ -1534,19 +1618,7 @@ function renderHistoryTab(container) {
       ${Object.keys(txByDate).length === 0 ? '<div style="color:var(--text-dim);font-size:13px;">No transactions yet</div>' : ''}
       ${Object.entries(txByDate).map(([date, txs]) => `
         <div class="ledger-date">${formatDate(date)}</div>
-        ${txs.map(t => {
-          const info = getCatInfo(t.category);
-          return `
-            <div class="ledger-item" onclick="openEditTransaction('${t.id}')">
-              <div class="ledger-emoji">${info.emoji}</div>
-              <div class="ledger-info">
-                <div class="ledger-desc">${t.description || (t.type === 'income' ? 'Income' : 'Expense')}</div>
-                <div class="ledger-cat">${info.label} · ${formatDateShort(t.date)}</div>
-              </div>
-              <div class="ledger-amount ${t.type === 'income' ? 'credit' : 'debit'}">${t.type === 'income' ? '+' : '-'}${formatRM(t.amount)}</div>
-            </div>
-          `;
-        }).join('')}
+        ${txs.map(renderLedgerItem).join('')}
       `).join('')}
     </div>
   `;
@@ -2348,6 +2420,66 @@ function closeModal(e) {
 }
 function closeModalForce() {
   document.getElementById('modalOverlay').classList.remove('show');
+}
+
+// ══════════════════════════════════════════
+// SWIPE GESTURE HANDLERS
+// ══════════════════════════════════════════
+const swipeState = {};
+
+function swipeStart(e, id) {
+  swipeState[id] = { startX: e.touches[0].clientX, moved: false };
+}
+
+function swipeMove(e, id) {
+  if (!swipeState[id]) return;
+  const dx = e.touches[0].clientX - swipeState[id].startX;
+  if (Math.abs(dx) > 8) swipeState[id].moved = true;
+  const row = document.getElementById('swipe-' + id);
+  if (!row) return;
+  const isRevealed = row.classList.contains('revealed');
+  const offset = isRevealed ? dx - 140 : dx;
+  if (offset < 0) {
+    row.querySelector('.ledger-item').style.transform = `translateX(${Math.max(-140, offset)}px)`;
+  }
+}
+
+function swipeEnd(e, id) {
+  if (!swipeState[id]) return;
+  const dx = e.changedTouches[0].clientX - swipeState[id].startX;
+  const row = document.getElementById('swipe-' + id);
+  if (!row) return;
+  const item = row.querySelector('.ledger-item');
+  item.style.transform = '';
+  if (dx < -60) row.classList.add('revealed');
+  else row.classList.remove('revealed');
+  delete swipeState[id];
+}
+
+function ledgerTap(id) {
+  const row = document.getElementById('swipe-' + id);
+  if (row && row.classList.contains('revealed')) {
+    row.classList.remove('revealed');
+    return;
+  }
+  openEditTransaction(id);
+}
+
+function swipeEdit(id) {
+  const row = document.getElementById('swipe-' + id);
+  if (row) row.classList.remove('revealed');
+  openEditTransaction(id);
+}
+
+async function swipeDelete(id) {
+  const row = document.getElementById('swipe-' + id);
+  if (row) {
+    row.style.opacity = '0';
+    row.style.transform = 'translateX(-100%)';
+    row.style.transition = 'all 0.25s';
+    await new Promise(r => setTimeout(r, 250));
+  }
+  await deleteTransaction(id);
 }
 
 // ══════════════════════════════════════════
