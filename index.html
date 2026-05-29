@@ -1602,9 +1602,15 @@ async function saveCommitment(type) {
 // ══════════════════════════════════════════
 // HISTORY TAB
 // ══════════════════════════════════════════
+let historyFilter = 'all'; // 'all' | 'income' | 'expense'
+
+function setHistoryFilter(f) {
+  historyFilter = f;
+  renderCurrentTab();
+}
+
 function renderHistoryTab(container) {
   const monthKey = overviewMonthKey;
-  const isCurrentMonth = monthKey === getCurrentMonthKey();
   const monthTx = allTransactions.filter(t => t.date.startsWith(monthKey));
   const totalIncome = monthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const totalExpense = monthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
@@ -1625,11 +1631,23 @@ function renderHistoryTab(container) {
     return `<span class="compare-badge down">&#x25BC; ${pct}%</span>`;
   }
 
+  // Apply filter
+  const filtered = historyFilter === 'all' ? monthTx
+    : monthTx.filter(t => t.type === historyFilter);
+
+  // Sort by date descending, then by timestamp descending
+  filtered.sort((a, b) => a.date === b.date ? b.timestamp - a.timestamp : b.date.localeCompare(a.date));
+
   const txByDate = {};
-  monthTx.sort((a, b) => b.timestamp - a.timestamp).forEach(t => {
+  filtered.forEach(t => {
     if (!txByDate[t.date]) txByDate[t.date] = [];
     txByDate[t.date].push(t);
   });
+  // Dates already sorted since we insert in order from a sorted array
+  const sortedDates = Object.keys(txByDate);
+
+  const incActive = historyFilter === 'income';
+  const expActive = historyFilter === 'expense';
 
   container.innerHTML = `
     <div class="month-nav">
@@ -1639,23 +1657,23 @@ function renderHistoryTab(container) {
     </div>
 
     <div class="dash-flow" style="margin-bottom:16px;">
-      <div class="dash-flow-card">
+      <div class="dash-flow-card ${incActive ? 'filter-active' : ''}" onclick="setHistoryFilter(historyFilter==='income'?'all':'income')" style="cursor:pointer;${incActive ? 'outline:2px solid var(--green);' : ''}">
         <div class="dash-flow-icon inc">INCOME ${compareBadge(totalIncome, prevTotalIncome)}</div>
         <div class="dash-flow-val" style="color:var(--green)">${formatRM(totalIncome)}</div>
       </div>
-      <div class="dash-flow-card">
+      <div class="dash-flow-card ${expActive ? 'filter-active' : ''}" onclick="setHistoryFilter(historyFilter==='expense'?'all':'expense')" style="cursor:pointer;${expActive ? 'outline:2px solid var(--red);' : ''}">
         <div class="dash-flow-icon exp">EXPENSES ${compareBadge(totalExpense, prevTotalExpense)}</div>
         <div class="dash-flow-val">${formatRM(totalExpense)}</div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">Transaction History</div>
-      <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Tap any entry to edit</div>
-      ${Object.keys(txByDate).length === 0 ? '<div style="color:var(--text-dim);font-size:13px;">No transactions yet</div>' : ''}
-      ${Object.entries(txByDate).map(([date, txs]) => `
+      <div class="card-title">Transaction History${historyFilter !== 'all' ? ` — ${historyFilter === 'income' ? 'Income' : 'Expenses'} only` : ''}</div>
+      <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">Tap any entry to edit${historyFilter !== 'all' ? ' · Tap card above to clear filter' : ''}</div>
+      ${sortedDates.length === 0 ? '<div style="color:var(--text-dim);font-size:13px;">No transactions yet</div>' : ''}
+      ${sortedDates.map(date => `
         <div class="ledger-date">${formatDate(date)}</div>
-        ${txs.map(renderLedgerItem).join('')}
+        ${txByDate[date].map(renderLedgerItem).join('')}
       `).join('')}
     </div>
   `;

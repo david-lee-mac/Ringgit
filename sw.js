@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ringgit-v17';
+const CACHE_NAME = 'ringgit-v18';
 const ASSETS = [
   './',
   './index.html',
