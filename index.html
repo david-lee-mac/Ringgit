@@ -922,10 +922,13 @@ function updateBadge() {
 // ══════════════════════════════════════════
 // LOG MODAL (FAB opens this)
 // ══════════════════════════════════════════
+let logCatOverride = ''; // user-picked category override
+
 function openLogModal() {
   logType = 'expense';
-  amountStr = '0';
+  amountStr = '';
   logDate = getToday();
+  logCatOverride = '';
 
   const freqMap = {};
   allTransactions.filter(t => t.type === 'expense').forEach(t => {
@@ -954,13 +957,16 @@ function openLogModal() {
     ${quickHtml}
     <div class="amount-display">
       <span class="amount-currency">RM</span>
-      <div class="amount-value expense" id="amountDisplay">0</div>
+      <div class="amount-value expense" id="amountDisplay">0.00</div>
     </div>
     <div class="log-meta-row">
       <input class="desc-input" id="descInput" type="text" placeholder="e.g. Nasi Lemak, Grab..." oninput="onDescInput(this.value)" autocomplete="off">
       <input class="date-input-compact" id="logDateInput" type="date" value="${logDate}" onchange="logDate=this.value">
     </div>
-    <div class="category-preview" id="catPreview"></div>
+    <div class="category-preview" id="catPreview" onclick="openLogCatPicker()" style="cursor:pointer;"></div>
+    <div id="logCatPickerWrap" style="display:none;margin-bottom:8px;">
+      <div class="cat-picker" id="logCatPicker"></div>
+    </div>
     <div class="numpad">
       <button class="numpad-btn" onclick="numInput('1')">1</button>
       <button class="numpad-btn" onclick="numInput('2')">2</button>
@@ -971,7 +977,7 @@ function openLogModal() {
       <button class="numpad-btn" onclick="numInput('7')">7</button>
       <button class="numpad-btn" onclick="numInput('8')">8</button>
       <button class="numpad-btn" onclick="numInput('9')">9</button>
-      <button class="numpad-btn" onclick="numInput('.')">.</button>
+      <button class="numpad-btn" style="visibility:hidden;"></button>
       <button class="numpad-btn" onclick="numInput('0')">0</button>
       <button class="numpad-btn backspace" onclick="numBackspace()">&#x232B;</button>
     </div>
@@ -981,6 +987,30 @@ function openLogModal() {
   `;
   document.getElementById('modalOverlay').classList.add('show');
   setTimeout(() => document.getElementById('descInput')?.focus(), 350);
+}
+
+function openLogCatPicker() {
+  if (logType === 'income') return;
+  const wrap = document.getElementById('logCatPickerWrap');
+  if (!wrap) return;
+  const isOpen = wrap.style.display !== 'none';
+  if (isOpen) { wrap.style.display = 'none'; return; }
+  const cats = CATEGORIES.filter(c => c.id !== 'income');
+  const desc = document.getElementById('descInput')?.value?.trim() || '';
+  const currentCat = logCatOverride || (desc ? autoCategory(desc) : 'uncategorized');
+  wrap.innerHTML = `<div class="cat-picker" id="logCatPicker">${cats.map(c =>
+    `<button class="cat-pick-btn ${c.id === currentCat ? 'selected' : ''}" onclick="selectLogCat('${c.id}')">${c.emoji} ${c.label}</button>`
+  ).join('')}</div>`;
+  wrap.style.display = 'block';
+}
+
+function selectLogCat(catId) {
+  logCatOverride = catId;
+  const info = getCatInfo(catId);
+  const preview = document.getElementById('catPreview');
+  if (preview) { preview.textContent = `${info.emoji} ${info.label}`; preview.classList.add('matched'); }
+  const wrap = document.getElementById('logCatPickerWrap');
+  if (wrap) wrap.style.display = 'none';
 }
 
 function setLogType(type) {
@@ -999,23 +1029,30 @@ function setLogType(type) {
   if (saveBtn) saveBtn.textContent = type === 'income' ? '+ Add Income' : 'Log Spending';
 }
 
+function formatAmountStr(raw) {
+  // raw is digits string e.g. '250' => '2.50', '1' => '0.01', '' => '0.00'
+  const n = parseInt(raw || '0', 10);
+  return (n / 100).toFixed(2);
+}
+
 function numInput(char) {
-  if (char === '.' && amountStr.includes('.')) return;
-  if (amountStr.includes('.') && amountStr.split('.')[1].length >= 2) return;
-  amountStr = amountStr === '0' && char !== '.' ? char : amountStr + char;
+  if (char === '.') return; // no decimal key in this mode
+  if (amountStr.length >= 8) return; // cap at RM999,999.99
+  amountStr = amountStr + char;
   const el = document.getElementById('amountDisplay');
-  if (el) el.textContent = amountStr;
+  if (el) el.textContent = formatAmountStr(amountStr);
 }
 
 function numBackspace() {
-  amountStr = amountStr.length <= 1 ? '0' : amountStr.slice(0, -1);
+  amountStr = amountStr.slice(0, -1);
   const el = document.getElementById('amountDisplay');
-  if (el) el.textContent = amountStr === '0' ? '0' : amountStr;
+  if (el) el.textContent = formatAmountStr(amountStr);
 }
 
 function onDescInput(val) {
   const preview = document.getElementById('catPreview');
   if (!preview) return;
+  if (logCatOverride) return; // user already picked manually
   if (!val.trim()) { preview.textContent = ''; preview.classList.remove('matched'); return; }
   if (logType === 'income') { preview.textContent = '💰 Income'; preview.classList.add('matched'); return; }
   const cat = autoCategory(val);
@@ -1030,19 +1067,19 @@ function onDescInput(val) {
 }
 
 function quickLog(desc, amount) {
-  amountStr = amount.toString();
+  amountStr = Math.round(amount * 100).toString();
   const amtEl = document.getElementById('amountDisplay');
   const descEl = document.getElementById('descInput');
-  if (amtEl) amtEl.textContent = amountStr;
+  if (amtEl) amtEl.textContent = formatAmountStr(amountStr);
   if (descEl) { descEl.value = desc; onDescInput(desc); }
 }
 
 async function saveEntry() {
-  const amount = parseFloat(amountStr);
+  const amount = parseInt(amountStr || '0', 10) / 100;
   if (!amount || amount <= 0) { showToast('Enter an amount first'); return; }
   const desc = document.getElementById('descInput')?.value?.trim() || '';
   const date = document.getElementById('logDateInput')?.value || getToday();
-  const category = logType === 'income' ? 'income' : autoCategory(desc);
+  const category = logType === 'income' ? 'income' : (logCatOverride || autoCategory(desc));
   const entry = {
     id: genId(), type: logType, amount, description: desc,
     category, date, timestamp: Date.now(),
