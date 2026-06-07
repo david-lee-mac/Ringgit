@@ -530,6 +530,14 @@ body {
 }
 .cat-pick-btn.selected { background: var(--accent); border-color: var(--accent); color: white; }
 
+/* Category color picker grid */
+.cat-color-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.cat-color-btn {
+  width: 32px; height: 32px; border-radius: 50%; border: 3px solid transparent;
+  cursor: pointer; transition: all 0.15s; padding: 0;
+}
+.cat-color-btn.selected { border-color: var(--text); transform: scale(1.15); }
+
 /* Uncategorized review */
 .uncat-item { background: var(--surface); border-radius: var(--radius); padding: 14px; margin-bottom: 10px; }
 .uncat-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
@@ -689,7 +697,7 @@ const DB_NAME = 'ringgit_db';
 const DB_VERSION = 1;
 let db = null;
 
-const CATEGORIES = [
+const DEFAULT_CATEGORIES = [
   { id: 'makan', emoji: '🍜', label: 'Makan', color: '#f4a261' },
   { id: 'transport', emoji: '🚗', label: 'Transport', color: '#60a5fa' },
   { id: 'bills', emoji: '🏠', label: 'Bills', color: '#a78bfa' },
@@ -698,9 +706,30 @@ const CATEGORIES = [
   { id: 'sports', emoji: '🏃', label: 'Sports', color: '#2dd4bf' },
   { id: 'health', emoji: '🏥', label: 'Health', color: '#34d399' },
   { id: 'personal', emoji: '💈', label: 'Personal Care', color: '#fb923c' },
+];
+// income + uncategorized are system categories, always last
+const SYSTEM_CATEGORIES = [
   { id: 'income', emoji: '💰', label: 'Income', color: '#34d399' },
   { id: 'uncategorized', emoji: '❓', label: 'Uncategorized', color: '#4a4a56' },
 ];
+let customCategories = []; // user-added categories from settings
+let CATEGORIES = [...DEFAULT_CATEGORIES, ...SYSTEM_CATEGORIES];
+
+function rebuildCategories() {
+  // Merge: defaults (possibly edited) + custom + system
+  const savedEdits = {}; // id -> overrides from customCategories
+  const customNew = [];
+  customCategories.forEach(c => {
+    const isDefault = DEFAULT_CATEGORIES.find(d => d.id === c.id);
+    if (isDefault) savedEdits[c.id] = c;
+    else customNew.push(c);
+  });
+  const merged = DEFAULT_CATEGORIES.map(d => savedEdits[d.id] || d);
+  // Remove any defaults the user has deleted
+  const deletedIds = customCategories.filter(c => c._deleted).map(c => c.id);
+  const filtered = merged.filter(d => !deletedIds.includes(d.id));
+  CATEGORIES = [...filtered, ...customNew.filter(c => !c._deleted), ...SYSTEM_CATEGORIES];
+}
 
 const KEYWORD_MAP = {
   makan: ['nasi', 'lemak', 'mcd', 'mcdonald', 'kfc', 'pizza', 'sushi', 'roti', 'canai', 'teh', 'tarik', 'kopi', 'coffee', 'starbucks', 'lunch', 'dinner', 'breakfast', 'makan', 'food', 'eat', 'restaurant', 'mamak', 'warung', 'noodle', 'mee', 'rice', 'ayam', 'chicken', 'burger', 'tea', 'drink', 'juice', 'boba', 'bubble', 'snack', 'goreng', 'sup', 'soup', 'bakery', 'bread', 'cake', 'dessert', 'ice cream', 'groceries', 'grocery', 'tesco', 'aeon', 'jaya grocer', 'village grocer', 'mydin', 'speedmart', '99', 'market', 'pasar', 'sayur', 'ikan', 'daging', 'buah', 'fruit', 'veg', 'dapur'],
@@ -2271,6 +2300,169 @@ function reconReset() {
 // ══════════════════════════════════════════
 // SETTINGS / EXPORT / IMPORT
 // ══════════════════════════════════════════
+// ══════════════════════════════════════════
+// CATEGORY MANAGER
+// ══════════════════════════════════════════
+const PRESET_COLORS = ['#f4a261','#60a5fa','#a78bfa','#f472b6','#fbbf24','#2dd4bf','#34d399','#fb923c','#ef4444','#8b5cf6','#06b6d4','#84cc16','#f97316','#ec4899','#14b8a6','#6366f1'];
+
+function openCategoryManager() {
+  const editableCats = CATEGORIES.filter(c => c.id !== 'income' && c.id !== 'uncategorized');
+  const modal = document.getElementById('modalContent');
+  modal.innerHTML = `
+    <div class="modal-handle"></div>
+    <div class="modal-title">Manage Categories</div>
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:12px;">Tap a category to edit. Swipe left to delete.</div>
+    <div id="catManagerList">
+      ${editableCats.map(c => renderCatManagerRow(c)).join('')}
+    </div>
+    <button class="modal-save-btn" style="margin-top:12px;" onclick="openAddCategory()">+ Add New Category</button>
+    <button class="modal-save-btn" style="background:var(--surface2);color:var(--text);margin-top:6px;" onclick="closeModalForce()">Done</button>
+  `;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function renderCatManagerRow(c) {
+  return `
+    <div class="settings-item" style="padding:10px 0;" onclick="openEditCategory('${c.id}')">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:36px;height:36px;border-radius:10px;background:${c.color}20;display:flex;align-items:center;justify-content:center;font-size:18px;">${c.emoji}</div>
+        <div>
+          <div style="font-weight:600;font-size:14px;">${c.label}</div>
+          <div style="font-size:11px;color:var(--text-dim);">id: ${c.id}</div>
+        </div>
+      </div>
+      <div style="width:16px;height:16px;border-radius:50%;background:${c.color};flex-shrink:0;"></div>
+    </div>
+  `;
+}
+
+function openAddCategory() {
+  const modal = document.getElementById('modalContent');
+  modal.innerHTML = `
+    <div class="modal-handle"></div>
+    <div class="modal-title">Add Category</div>
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px;">Emoji</div>
+    <input class="modal-input" id="catEmoji" placeholder="e.g. 🎵 🏋️ 🐱" maxlength="4" style="font-size:28px;text-align:center;padding:8px;">
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px;margin-top:8px;">Name</div>
+    <input class="modal-input" id="catLabel" placeholder="e.g. Music, Pets..." autocomplete="off">
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;margin-top:8px;">Color</div>
+    <div class="cat-color-grid" id="catColorGrid">
+      ${PRESET_COLORS.map((clr, i) => `
+        <button class="cat-color-btn ${i === 0 ? 'selected' : ''}" style="background:${clr};" data-color="${clr}" onclick="pickCatColor(this,'${clr}')"></button>
+      `).join('')}
+    </div>
+    <input type="hidden" id="catColorVal" value="${PRESET_COLORS[0]}">
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px;margin-top:10px;">Keywords <span style="font-size:10px;">(comma-separated, for auto-detect)</span></div>
+    <input class="modal-input" id="catKeywords" placeholder="e.g. gym, workout, protein" autocomplete="off">
+    <button class="modal-save-btn" style="margin-top:14px;" onclick="saveNewCategory()">Add Category</button>
+    <button class="modal-save-btn" style="background:var(--surface2);color:var(--text);margin-top:6px;" onclick="openCategoryManager()">Cancel</button>
+  `;
+}
+
+function openEditCategory(catId) {
+  const c = CATEGORIES.find(x => x.id === catId);
+  if (!c) return;
+  const kws = (KEYWORD_MAP[catId] || []).concat(userKeywords[catId] || []);
+  const uniqueKws = [...new Set(kws)];
+  const modal = document.getElementById('modalContent');
+  modal.innerHTML = `
+    <div class="modal-handle"></div>
+    <div class="modal-title">Edit Category</div>
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px;">Emoji</div>
+    <input class="modal-input" id="catEmoji" value="${c.emoji}" maxlength="4" style="font-size:28px;text-align:center;padding:8px;">
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px;margin-top:8px;">Name</div>
+    <input class="modal-input" id="catLabel" value="${c.label}" autocomplete="off">
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:6px;margin-top:8px;">Color</div>
+    <div class="cat-color-grid" id="catColorGrid">
+      ${PRESET_COLORS.map(clr => `
+        <button class="cat-color-btn ${clr === c.color ? 'selected' : ''}" style="background:${clr};" data-color="${clr}" onclick="pickCatColor(this,'${clr}')"></button>
+      `).join('')}
+    </div>
+    <input type="hidden" id="catColorVal" value="${c.color}">
+    <div style="font-size:12px;color:var(--text-dim);margin-bottom:4px;margin-top:10px;">Keywords <span style="font-size:10px;">(comma-separated, for auto-detect)</span></div>
+    <input class="modal-input" id="catKeywords" value="${uniqueKws.join(', ')}" autocomplete="off">
+    <button class="modal-save-btn" style="margin-top:14px;" onclick="saveEditCategory('${catId}')">Save Changes</button>
+    <button class="modal-delete-btn" onclick="deleteCategory('${catId}')">Delete Category</button>
+    <button class="modal-save-btn" style="background:var(--surface2);color:var(--text);margin-top:6px;" onclick="openCategoryManager()">Cancel</button>
+  `;
+}
+
+function pickCatColor(btn, color) {
+  document.querySelectorAll('.cat-color-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  document.getElementById('catColorVal').value = color;
+}
+
+async function saveNewCategory() {
+  const emoji = document.getElementById('catEmoji').value.trim();
+  const label = document.getElementById('catLabel').value.trim();
+  const color = document.getElementById('catColorVal').value;
+  const kwStr = document.getElementById('catKeywords').value.trim();
+  if (!emoji || !label) { showToast('Emoji and name are required'); return; }
+  const id = label.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
+  if (CATEGORIES.find(c => c.id === id)) { showToast('Category already exists'); return; }
+  const newCat = { id, emoji, label, color };
+  customCategories.push(newCat);
+  rebuildCategories();
+  await dbPut('settings', { key: 'customCategories', value: customCategories });
+  // Save keywords
+  if (kwStr) {
+    const kws = kwStr.split(',').map(k => k.trim().toLowerCase()).filter(Boolean);
+    if (kws.length) {
+      if (!userKeywords[id]) userKeywords[id] = [];
+      kws.forEach(k => { if (!userKeywords[id].includes(k)) userKeywords[id].push(k); });
+      await dbPut('settings', { key: 'userKeywords', value: userKeywords });
+    }
+  }
+  showToast(`${emoji} ${label} added`);
+  openCategoryManager();
+}
+
+async function saveEditCategory(catId) {
+  const emoji = document.getElementById('catEmoji').value.trim();
+  const label = document.getElementById('catLabel').value.trim();
+  const color = document.getElementById('catColorVal').value;
+  const kwStr = document.getElementById('catKeywords').value.trim();
+  if (!emoji || !label) { showToast('Emoji and name are required'); return; }
+  // Update or add to customCategories
+  const existing = customCategories.find(c => c.id === catId);
+  if (existing) {
+    existing.emoji = emoji; existing.label = label; existing.color = color;
+    delete existing._deleted;
+  } else {
+    customCategories.push({ id: catId, emoji, label, color });
+  }
+  rebuildCategories();
+  await dbPut('settings', { key: 'customCategories', value: customCategories });
+  // Update keywords
+  const kws = kwStr ? kwStr.split(',').map(k => k.trim().toLowerCase()).filter(Boolean) : [];
+  userKeywords[catId] = kws;
+  await dbPut('settings', { key: 'userKeywords', value: userKeywords });
+  showToast(`${emoji} ${label} saved`);
+  openCategoryManager();
+  renderCurrentTab();
+}
+
+async function deleteCategory(catId) {
+  if (!confirm(`Delete this category? Transactions using it will become "Uncategorized".`)) return;
+  // Mark as deleted
+  const existing = customCategories.find(c => c.id === catId);
+  if (existing) existing._deleted = true;
+  else customCategories.push({ id: catId, _deleted: true });
+  rebuildCategories();
+  await dbPut('settings', { key: 'customCategories', value: customCategories });
+  // Re-assign transactions
+  for (const t of allTransactions) {
+    if (t.category === catId) {
+      t.category = 'uncategorized';
+      await dbPut('transactions', t);
+    }
+  }
+  showToast('Category deleted');
+  openCategoryManager();
+  renderCurrentTab();
+}
+
 function openSettings() {
   const modal = document.getElementById('modalContent');
   modal.innerHTML = `
@@ -2292,6 +2484,13 @@ function openSettings() {
     </div>
     <div class="settings-item">
       <div>
+        <div class="settings-item-label">Categories</div>
+        <div class="settings-item-desc">Add, edit, or remove spending categories</div>
+      </div>
+      <button class="settings-item-action" onclick="closeModalForce();setTimeout(openCategoryManager,200)">Edit</button>
+    </div>
+    <div class="settings-item">
+      <div>
         <div class="settings-item-label">Budget Limits</div>
         <div class="settings-item-desc">Set spending alerts per category</div>
       </div>
@@ -2310,12 +2509,13 @@ function openSettings() {
 
 function exportData() {
   const data = {
-    version: 2,
+    version: 3,
     exportedAt: new Date().toISOString(),
     transactions: allTransactions,
     commitments: allCommitments,
     budgetLimits,
     userKeywords,
+    customCategories,
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -2365,6 +2565,11 @@ async function handleImport(event) {
     if (data.userKeywords) {
       userKeywords = data.userKeywords;
       await dbPut('settings', { key: 'userKeywords', value: userKeywords });
+    }
+    if (data.customCategories) {
+      customCategories = data.customCategories;
+      rebuildCategories();
+      await dbPut('settings', { key: 'customCategories', value: customCategories });
     }
     closeModalForce();
     showToast(`Imported ${count.tx} transactions, ${count.cm} commitments`);
@@ -2559,12 +2764,19 @@ async function init() {
   }
 
   try {
-    const tx = db.transaction('settings', 'readonly');
-    const store = tx.objectStore('settings');
-    const req1 = store.get('userKeywords');
-    req1.onsuccess = () => { if (req1.result) userKeywords = req1.result.value; };
-    const req2 = store.get('budgetLimits');
-    req2.onsuccess = () => { if (req2.result) budgetLimits = req2.result.value; };
+    const settingsTx = db.transaction('settings', 'readonly');
+    const store = settingsTx.objectStore('settings');
+    await new Promise((resolve) => {
+      const req1 = store.get('userKeywords');
+      req1.onsuccess = () => { if (req1.result) userKeywords = req1.result.value; };
+      const req2 = store.get('budgetLimits');
+      req2.onsuccess = () => { if (req2.result) budgetLimits = req2.result.value; };
+      const req3 = store.get('customCategories');
+      req3.onsuccess = () => {
+        if (req3.result) { customCategories = req3.result.value; rebuildCategories(); }
+      };
+      settingsTx.oncomplete = resolve;
+    });
   } catch (e) {}
   renderCurrentTab();
 }
