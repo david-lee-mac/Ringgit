@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#f5f4f0">
+<meta name="theme-color" content="#f4f7f7">
 <title>Ringgit — Money Discipline</title>
 <link rel="manifest" href="manifest.json">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
@@ -14,27 +14,28 @@
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 :root {
-  --bg: #f5f4f0;
+  --bg: #f4f7f7;
   --surface: #ffffff;
-  --surface2: #eeece6;
-  --surface3: #e2dfd7;
-  --text: #1c1b18;
-  --text-dim: #7a7870;
-  --text-muted: #b0ada4;
-  --accent: #c0392b;
-  --accent-light: #e05252;
+  --surface2: #e8eeee;
+  --surface3: #d5dede;
+  --text: #03363D;
+  --text-dim: #4a6b70;
+  --text-muted: #8da8ac;
+  --accent: #03363D;
+  --accent-light: #065a66;
+  --accent-soft: #BDD9D7;
   --green: #1a9e6e;
   --red: #c0392b;
   --orange: #d4800a;
-  --teal: #0d8a7a;
+  --teal: #03363D;
   --pink: #c2418c;
   --blue: #2563eb;
   --purple: #7c3aed;
   --radius: 16px;
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --shadow: 0 1px 4px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow: 0 1px 4px rgba(3,54,61,0.06), 0 4px 16px rgba(3,54,61,0.04);
+  --shadow-sm: 0 1px 3px rgba(3,54,61,0.07);
 }
 
 body {
@@ -120,10 +121,10 @@ body {
   background: var(--accent);
   border: none; color: white; font-size: 26px; font-weight: 300;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  box-shadow: 0 4px 20px rgba(192,57,43,0.35);
+  box-shadow: 0 4px 20px rgba(3,54,61,0.35);
   transition: transform 0.15s, box-shadow 0.15s;
 }
-.fab-btn:active { transform: scale(0.92); box-shadow: 0 2px 10px rgba(192,57,43,0.2); }
+.fab-btn:active { transform: scale(0.92); box-shadow: 0 2px 10px rgba(3,54,61,0.2); }
 
 .tab-badge {
   position: absolute; top: 0; right: 8px;
@@ -222,8 +223,8 @@ body {
   transition: all 0.2s; background: transparent; color: var(--text-dim);
   font-family: inherit;
 }
-.log-type-btn.active-expense { background: rgba(248,113,113,0.12); color: var(--red); }
-.log-type-btn.active-income { background: rgba(52,211,153,0.12); color: var(--green); }
+.log-type-btn.active-expense { background: rgba(3,54,61,0.08); color: var(--accent); }
+.log-type-btn.active-income { background: rgba(189,217,215,0.35); color: var(--green); }
 
 .amount-display { text-align: center; padding: 8px 0 4px; }
 .amount-currency { font-size: 15px; color: var(--text-dim); font-weight: 500; }
@@ -254,7 +255,7 @@ body {
   text-align: center; padding: 2px 0 6px; font-size: 12px;
   color: var(--text-dim); min-height: 22px; transition: all 0.2s;
 }
-.category-preview.matched { color: var(--accent-light); }
+.category-preview.matched { color: var(--accent); }
 
 .quick-entries {
   display: flex; gap: 6px; overflow-x: auto; padding: 0 0 8px;
@@ -599,8 +600,8 @@ body {
   font-size: 10px; font-weight: 600; padding: 2px 7px;
   border-radius: 10px; margin-left: 4px;
 }
-.compare-badge.up { background: rgba(248,113,113,0.12); color: var(--red); }
-.compare-badge.down { background: rgba(52,211,153,0.12); color: var(--green); }
+.compare-badge.up { background: rgba(192,57,43,0.1); color: var(--red); }
+.compare-badge.down { background: rgba(189,217,215,0.4); color: var(--green); }
 .compare-badge.neutral { background: rgba(148,163,184,0.1); color: var(--text-dim); }
 
 /* Budget */
@@ -1146,7 +1147,7 @@ function openEditTransaction(id) {
     <input class="modal-input" id="editDesc" value="${(t.description || '').replace(/"/g, '&quot;')}" placeholder="Description" autocomplete="off">
     <div class="modal-row">
       <input class="modal-input" id="editAmount" type="number" inputmode="decimal" value="${t.amount}" step="0.01" placeholder="Amount">
-      <input class="modal-input" id="editDate" type="date" value="${t.date}" style="max-width:160px;color-scheme:dark;">
+      <input class="modal-input" id="editDate" type="date" value="${t.date}" style="max-width:160px;">
     </div>
     ${!isIncome ? `
       <div style="font-size:12px;color:var(--text-dim);margin-bottom:8px;font-weight:500;">Category</div>
