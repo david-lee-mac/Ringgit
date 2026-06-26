@@ -31,11 +31,48 @@
   --pink: #c2418c;
   --blue: #2563eb;
   --purple: #7c3aed;
+  /* Bento + hero */
+  --hero-bg: #03363D;
+  --hero-text: #ffffff;
+  --hero-dim: #BDD9D7;
+  --hero-track: rgba(255,255,255,0.14);
+  --tile-border: #dde6e5;
   --radius: 16px;
+  --radius-lg: 20px;
+  --gap: 10px;
+  --input-scheme: light;
+  --focus-ring: rgba(3,54,61,0.12);
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   --shadow: 0 1px 4px rgba(3,54,61,0.06), 0 4px 16px rgba(3,54,61,0.04);
   --shadow-sm: 0 1px 3px rgba(3,54,61,0.07);
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --bg: #0e1817;
+  --surface: #16211f;
+  --surface2: #1f2d2b;
+  --surface3: #2c3b38;
+  --text: #e9f1ef;
+  --text-dim: #9db4b0;
+  --text-muted: #6d8480;
+  --accent: #1fa97f;
+  --accent-light: #5dcaa5;
+  --accent-soft: #234a44;
+  --green: #2fc28d;
+  --red: #e2685a;
+  --orange: #e8a13c;
+  --hero-bg: #15403a;
+  --hero-text: #eafdf7;
+  --hero-dim: #8fd3c2;
+  --hero-track: rgba(255,255,255,0.12);
+  --tile-border: #28372f;
+  --input-scheme: dark;
+  --focus-ring: rgba(95,202,165,0.28);
+  --shadow: 0 1px 4px rgba(0,0,0,0.32), 0 6px 20px rgba(0,0,0,0.28);
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.28);
+  color-scheme: dark;
 }
 
 body {
@@ -137,16 +174,42 @@ body {
 /* ── Cards ── */
 .card {
   background: var(--surface);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   padding: 16px;
   margin-bottom: 12px;
-  border: 1px solid var(--surface3);
+  border: 1px solid var(--tile-border);
   box-shadow: var(--shadow-sm);
 }
 .card-title {
   font-size: 12px; font-weight: 600; color: var(--text-dim);
   text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;
 }
+
+/* ── Bento grid ── */
+.bento { display: grid; grid-template-columns: 1fr 1fr; gap: var(--gap); margin-bottom: 12px; }
+.bento .col-2 { grid-column: 1 / 3; }
+.tile {
+  background: var(--surface); border: 1px solid var(--tile-border);
+  border-radius: var(--radius-lg); padding: 14px; box-shadow: var(--shadow-sm);
+  min-width: 0;
+}
+.tile.col-2 { grid-column: 1 / 3; }
+.tile-hero {
+  grid-column: 1 / 3; background: var(--hero-bg); color: var(--hero-text);
+  border: 1px solid var(--hero-bg); border-radius: var(--radius-lg);
+  padding: 18px 16px; box-shadow: var(--shadow);
+}
+[data-theme="dark"] .tile-hero { border-color: #2c5249; }
+.tile-lab { font-size: 10px; font-weight: 600; letter-spacing: 0.7px; text-transform: uppercase; color: var(--text-muted); }
+.tile-num { font-family: 'DM Serif Display', Georgia, serif; letter-spacing: -1px; }
+.hero-pill {
+  background: var(--hero-track); color: var(--hero-dim);
+  font-size: 11px; font-weight: 600; padding: 5px 10px; border-radius: 20px; white-space: nowrap;
+}
+.hero-bar { height: 6px; background: var(--hero-track); border-radius: 4px; overflow: hidden; margin-top: 14px; }
+.hero-bar > div { height: 100%; background: var(--hero-dim); border-radius: 4px; transition: width 0.5s ease; }
+.tile-stat-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 7px 0; }
+.tile-stat-row + .tile-stat-row { border-top: 1px solid var(--surface2); }
 
 /* ── DASHBOARD TAB ── */
 .dash-hero { text-align: center; padding: 8px 0 4px; }
@@ -164,8 +227,8 @@ body {
   display: flex; gap: 12px; justify-content: center; margin-top: 14px;
 }
 .dash-flow-card {
-  flex: 1; background: var(--surface); border-radius: 14px; padding: 14px;
-  text-align: center; border: 1px solid var(--surface3);
+  flex: 1; background: var(--surface); border-radius: var(--radius-lg); padding: 16px 14px;
+  text-align: center; border: 1px solid var(--tile-border);
   box-shadow: var(--shadow-sm);
 }
 .dash-flow-icon { font-size: 11px; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 6px; }
@@ -240,14 +303,14 @@ body {
   border-radius: 10px; padding: 11px 14px; color: var(--text);
   font-size: 14px; font-family: inherit; outline: none; margin-bottom: 8px; transition: border-color 0.2s;
 }
-.desc-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(192,57,43,0.1); }
+.desc-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus-ring); }
 .desc-input::placeholder { color: var(--text-muted); }
 
 .date-input-compact {
   background: var(--surface2); border: 1px solid var(--surface3);
   border-radius: 10px; padding: 11px 12px; color: var(--text);
   font-size: 13px; font-family: inherit; outline: none; -webkit-appearance: none;
-  color-scheme: light; width: 125px; flex-shrink: 0;
+  color-scheme: var(--input-scheme); width: 125px; flex-shrink: 0;
 }
 .date-input-compact:focus { border-color: var(--accent); }
 
@@ -282,7 +345,7 @@ body {
   background: var(--accent);
   border-color: var(--accent);
   color: white; font-size: 14px; font-weight: 700;
-  box-shadow: 0 3px 12px rgba(192,57,43,0.25);
+  box-shadow: var(--shadow-sm);
 }
 .numpad-btn.action:active { opacity: 0.85; }
 .numpad-btn.backspace { font-size: 16px; }
@@ -290,8 +353,8 @@ body {
 /* ── MONTHLY PLAN TAB ── */
 .plan-summary { display: flex; gap: 10px; margin-bottom: 16px; }
 .plan-stat {
-  flex: 1; background: var(--surface); border-radius: var(--radius); padding: 14px;
-  text-align: center; border: 1px solid var(--surface3); box-shadow: var(--shadow-sm);
+  flex: 1; background: var(--surface); border-radius: var(--radius-lg); padding: 16px 14px;
+  text-align: center; border: 1px solid var(--tile-border); box-shadow: var(--shadow-sm);
 }
 .plan-stat-value { font-size: 18px; font-weight: 700; }
 .plan-stat-label { font-size: 10px; color: var(--text-dim); margin-top: 4px; font-weight: 600; letter-spacing: 0.3px; }
@@ -457,16 +520,17 @@ body {
 
 .recon-summary { display: flex; gap: 10px; margin-bottom: 16px; }
 .recon-stat {
-  flex: 1; background: var(--surface); border-radius: 10px;
-  padding: 12px; text-align: center; border: 1px solid var(--surface3);
+  flex: 1; background: var(--surface); border-radius: var(--radius-lg);
+  padding: 14px 12px; text-align: center; border: 1px solid var(--tile-border);
   box-shadow: var(--shadow-sm);
 }
 .recon-stat-val { font-size: 20px; font-weight: 700; }
 .recon-stat-label { font-size: 10px; color: var(--text-dim); margin-top: 2px; letter-spacing: 0.3px; }
 
 .file-upload-area {
-  border: 2px dashed var(--surface3); border-radius: 14px;
+  border: 2px dashed var(--surface3); border-radius: var(--radius-lg);
   padding: 40px 20px; text-align: center; cursor: pointer;
+  background: var(--surface); box-shadow: var(--shadow-sm);
   transition: all 0.2s; margin-bottom: 16px;
 }
 .file-upload-area:active { border-color: var(--accent); background: rgba(124,92,252,0.04); }
@@ -479,8 +543,16 @@ body {
   position: fixed; inset: 0; background: rgba(28,27,24,0.45);
   z-index: 200; display: flex; align-items: flex-end;
   justify-content: center; opacity: 0; pointer-events: none;
-  transition: opacity 0.25s; backdrop-filter: blur(6px);
+  padding-bottom: var(--kb, 0px);
+  transition: opacity 0.25s, padding-bottom 0.18s ease;
+  backdrop-filter: blur(6px);
 }
+/* While typing the description we keep the keyboard up AND the numpad fully
+   usable — its buttons use mousedown-preventDefault so they don't blur the
+   text field (which would dismiss the keyboard). We only hide the quick-entry
+   chips to free vertical space so numpad + button fit above the keyboard. */
+.modal.kb-typing .quick-entries { display: none; }
+.modal.kb-typing .amount-display { padding: 2px 0; }
 .modal-overlay.show { opacity: 1; pointer-events: auto; }
 
 .modal {
@@ -501,7 +573,7 @@ body {
   border-radius: 10px; padding: 13px 16px; color: var(--text);
   font-size: 15px; font-family: inherit; outline: none; margin-bottom: 10px;
 }
-.modal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(192,57,43,0.1); }
+.modal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--focus-ring); }
 .modal-input::placeholder { color: var(--text-muted); }
 
 .modal-row { display: flex; gap: 10px; }
@@ -511,7 +583,7 @@ body {
   width: 100%; padding: 15px; background: var(--accent);
   color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 700;
   font-family: inherit; cursor: pointer; margin-top: 8px;
-  box-shadow: 0 3px 12px rgba(192,57,43,0.25);
+  box-shadow: var(--shadow-sm);
 }
 .modal-save-btn:active { opacity: 0.85; }
 
@@ -571,7 +643,7 @@ body {
   position: fixed; inset: 0; background: var(--bg);
   z-index: 150; overflow-y: auto; -webkit-overflow-scrolling: touch;
   padding: var(--safe-top) 16px calc(20px + var(--safe-bottom));
-  display: none; color-scheme: light;
+  display: none; color-scheme: var(--input-scheme);
 }
 .full-overlay.show { display: block; }
 .full-overlay-header {
@@ -635,6 +707,18 @@ body {
 .settings-item-action.danger { color: var(--red); }
 
 </style>
+<script>
+(function () {
+  try {
+    var p = localStorage.getItem('ringgit_theme') || 'system';
+    var dark = p === 'dark' || (p === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    var t = dark ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    var m = document.querySelector('meta[name="theme-color"]');
+    if (m) m.setAttribute('content', t === 'dark' ? '#0e1817' : '#f4f7f7');
+  } catch (e) {}
+})();
+</script>
 </head>
 <body>
 
@@ -990,14 +1074,14 @@ function openLogModal() {
       <div class="amount-value expense" id="amountDisplay">0.00</div>
     </div>
     <div class="log-meta-row">
-      <input class="desc-input" id="descInput" type="text" placeholder="e.g. Nasi Lemak, Grab..." oninput="onDescInput(this.value)" autocomplete="off">
+      <input class="desc-input" id="descInput" type="text" placeholder="e.g. Nasi Lemak, Grab..." oninput="onDescInput(this.value)" onfocus="logKbTyping(true)" onblur="logKbTyping(false)" enterkeyhint="done" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" autocomplete="off">
       <input class="date-input-compact" id="logDateInput" type="date" value="${logDate}" onchange="logDate=this.value">
     </div>
     <div class="category-preview" id="catPreview" onclick="openLogCatPicker()" style="cursor:pointer;"></div>
     <div id="logCatPickerWrap" style="display:none;margin-bottom:8px;">
       <div class="cat-picker" id="logCatPicker"></div>
     </div>
-    <div class="numpad">
+    <div class="numpad" onmousedown="event.preventDefault()">
       <button class="numpad-btn" onclick="numInput('1')">1</button>
       <button class="numpad-btn" onclick="numInput('2')">2</button>
       <button class="numpad-btn" onclick="numInput('3')">3</button>
@@ -1011,12 +1095,19 @@ function openLogModal() {
       <button class="numpad-btn" onclick="numInput('0')">0</button>
       <button class="numpad-btn backspace" onclick="numBackspace()">&#x232B;</button>
     </div>
-    <button class="numpad-btn action" style="width:100%;margin-top:4px;border-radius:10px;padding:14px;" onclick="saveEntry()">
+    <button class="numpad-btn action" style="width:100%;margin-top:4px;border-radius:10px;padding:14px;" onmousedown="event.preventDefault()" onclick="saveEntry()">
       Log Spending
     </button>
   `;
   document.getElementById('modalOverlay').classList.add('show');
-  setTimeout(() => document.getElementById('descInput')?.focus(), 350);
+  // Note: we intentionally do NOT auto-focus the description here. Auto-focusing
+  // popped the keyboard immediately and hid the numpad + Log Spending button.
+  // The amount (numpad) is the primary input; tap the description to type it.
+}
+
+function logKbTyping(on) {
+  const m = document.getElementById('modalContent');
+  if (m) m.classList.toggle('kb-typing', on);
 }
 
 function openLogCatPicker() {
@@ -1220,7 +1311,7 @@ function renderDashboard(container) {
   const maxCatAmount = sortedCats.length > 0 ? sortedCats[0][1] : 1;
 
   // Donut SVG
-  const donutSvg = buildDonutChart(sortedCats, totalExpense);
+  const donutSvg = buildDonutChart(sortedCats, totalExpense, 138);
 
   // Due date alerts
   const dueAlerts = buildDueAlerts(monthKey);
@@ -1249,50 +1340,72 @@ function renderDashboard(container) {
   const dayOfMonth = new Date().getDate();
   const dailyBurn = dayOfMonth > 0 ? totalExpense / dayOfMonth : 0;
 
+  const pctLeft = totalIncome > 0 ? Math.max(0, Math.round((remaining / totalIncome) * 100)) : 0;
+  const daysLeft = Math.max(0, daysInMonth - dayOfMonth);
+  const topCat = sortedCats.length ? getCatInfo(sortedCats[0][0]) : null;
+
   container.innerHTML = `
     ${dueAlerts}
 
-    <div class="dash-hero">
-      <div class="dash-balance ${remaining >= 0 ? 'positive' : 'negative'}">${remaining >= 0 ? '' : '-'}${formatRM(Math.abs(remaining))}</div>
-      <div class="dash-label">remaining this month</div>
-    </div>
-
-    <div class="dash-flow">
-      <div class="dash-flow-card">
-        <div class="dash-flow-icon inc">INCOME</div>
-        <div class="dash-flow-val" style="color:var(--green)">${formatRM(totalIncome)}</div>
-      </div>
-      <div class="dash-flow-card">
-        <div class="dash-flow-icon exp">EXPENSES</div>
-        <div class="dash-flow-val">${formatRM(totalExpense)}</div>
-      </div>
-    </div>
-
-    ${budgetAlertsHtml}
-
-    <div class="card" style="margin-top:12px;">
-      <div class="spending-bar-container">
-        <div class="spending-bar">
-          <div class="spending-bar-fill" style="width:${spentPct}%;background:${barColor}"></div>
+    <div class="bento">
+      <div class="tile-hero">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+          <div>
+            <div class="tile-lab" style="color:var(--hero-dim);">Remaining this month</div>
+            <div class="tile-num" style="font-size:44px;line-height:1.04;margin-top:6px;color:${remaining >= 0 ? 'var(--hero-text)' : '#ffb4ab'};">${remaining < 0 ? '-' : ''}${formatRM(Math.abs(remaining))}</div>
+          </div>
+          <div class="hero-pill">${pctLeft}% left</div>
         </div>
-        <div class="spending-bar-label">
-          <span>${spentPct.toFixed(0)}% of income spent</span>
-          <span>~${formatRM(dailyBurn)}/day</span>
-        </div>
+        <div class="hero-bar"><div style="width:${spentPct}%"></div></div>
       </div>
-    </div>
 
-    ${totalExpense > 0 ? `
-      <div class="donut-container">
-        ${donutSvg}
-        <div class="donut-center">
-          <div class="donut-center-amount">${formatRM(totalExpense)}</div>
-          <div class="donut-center-label">total spent</div>
-        </div>
+      <div class="tile">
+        <div class="tile-lab" style="color:var(--green);">Income</div>
+        <div class="tile-num" style="font-size:24px;color:var(--green);margin-top:8px;">${formatRM(totalIncome)}</div>
       </div>
-    ` : ''}
+      <div class="tile">
+        <div class="tile-lab" style="color:var(--red);">Expenses</div>
+        <div class="tile-num" style="font-size:24px;margin-top:8px;">${formatRM(totalExpense)}</div>
+      </div>
 
-    <div class="card">
+      ${budgetAlertsHtml ? `<div class="col-2">${budgetAlertsHtml}</div>` : ''}
+
+      <div class="tile col-2">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">
+          <span class="tile-lab">Spending pace</span>
+          <span style="font-size:11px;color:var(--text-dim);font-weight:600;">~${formatRM(dailyBurn)}/day</span>
+        </div>
+        <div class="spending-bar"><div class="spending-bar-fill" style="width:${spentPct}%;background:${barColor}"></div></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:7px;">${spentPct.toFixed(0)}% of income spent</div>
+      </div>
+
+      ${totalExpense > 0 ? `
+        <div class="tile" style="display:flex;align-items:center;justify-content:center;">
+          <div style="position:relative;display:flex;align-items:center;justify-content:center;">
+            ${donutSvg}
+            <div style="position:absolute;text-align:center;">
+              <div class="tile-num" style="font-size:16px;">${formatRM(totalExpense)}</div>
+              <div style="font-size:10px;color:var(--text-muted);">spent</div>
+            </div>
+          </div>
+        </div>
+        <div class="tile" style="display:flex;flex-direction:column;justify-content:center;">
+          <div class="tile-stat-row">
+            <span class="tile-lab">Top</span>
+            <span style="font-size:12px;font-weight:600;">${topCat ? `${topCat.emoji} ${topCat.label}` : '—'}</span>
+          </div>
+          <div class="tile-stat-row">
+            <span class="tile-lab">Daily burn</span>
+            <span style="font-size:12px;font-weight:600;">${formatRM(dailyBurn)}</span>
+          </div>
+          <div class="tile-stat-row">
+            <span class="tile-lab">Days left</span>
+            <span style="font-size:12px;font-weight:600;">${daysLeft}</span>
+          </div>
+        </div>
+      ` : ''}
+
+    <div class="tile col-2">
       <div class="card-title" style="display:flex;align-items:center;justify-content:space-between;">
         <span>By Category</span>
         <button class="budget-set-btn" onclick="openBudgetSettings()">Set Budgets</button>
@@ -1326,19 +1439,19 @@ function renderDashboard(container) {
       }).join('')}
     </div>
 
-    <div class="card">
+    <div class="tile col-2">
       <div class="card-title">Recent</div>
       ${renderRecentTransactions(monthTx, 5)}
+    </div>
     </div>
   `;
 }
 
-function buildDonutChart(sortedCats, total) {
+function buildDonutChart(sortedCats, total, size = 180) {
   if (sortedCats.length === 0 || total === 0) return '';
-  const size = 180;
   const cx = size / 2, cy = size / 2;
-  const r = 70;
-  const strokeWidth = 24;
+  const r = size * 0.39;
+  const strokeWidth = size * 0.133;
   const circumference = 2 * Math.PI * r;
   let offset = 0;
   let arcs = '';
@@ -2471,6 +2584,13 @@ function openSettings() {
     <div class="modal-title">Settings</div>
     <div class="settings-item">
       <div>
+        <div class="settings-item-label">Appearance</div>
+        <div class="settings-item-desc">${themeDesc(getThemePref())}</div>
+      </div>
+      <button class="settings-item-action" onclick="cycleTheme()">${themeLabel(getThemePref())}</button>
+    </div>
+    <div class="settings-item">
+      <div>
         <div class="settings-item-label">Export Data</div>
         <div class="settings-item-desc">Download all data as JSON backup</div>
       </div>
@@ -2744,10 +2864,77 @@ async function swipeDelete(id) {
 }
 
 // ══════════════════════════════════════════
+// THEME (follows the phone's system setting by default)
+// ══════════════════════════════════════════
+// Preference is one of 'system' | 'light' | 'dark'. 'system' tracks the OS.
+function getThemePref() {
+  try { return localStorage.getItem('ringgit_theme') || 'system'; } catch (e) { return 'system'; }
+}
+function systemPrefersDark() {
+  return !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+}
+function resolveTheme(pref) {
+  pref = pref || getThemePref();
+  if (pref === 'system') return systemPrefersDark() ? 'dark' : 'light';
+  return pref;
+}
+function applyThemePref(pref) {
+  try { localStorage.setItem('ringgit_theme', pref); } catch (e) {}
+  const resolved = resolveTheme(pref);
+  document.documentElement.setAttribute('data-theme', resolved);
+  const m = document.querySelector('meta[name="theme-color"]');
+  if (m) m.setAttribute('content', resolved === 'dark' ? '#0e1817' : '#f4f7f7');
+}
+// Cycle System → Light → Dark from the Settings row.
+function cycleTheme() {
+  const order = ['system', 'light', 'dark'];
+  const next = order[(order.indexOf(getThemePref()) + 1) % order.length];
+  applyThemePref(next);
+  openSettings();
+}
+function themeLabel(pref) {
+  return pref === 'light' ? '☀️ Light' : pref === 'dark' ? '🌙 Dark' : '🌗 System';
+}
+function themeDesc(pref) {
+  if (pref === 'light') return 'Always light';
+  if (pref === 'dark') return 'Always dark';
+  return `Following your phone (${systemPrefersDark() ? 'dark' : 'light'} now)`;
+}
+// Re-apply when the OS theme flips, but only while on 'system'.
+function refreshSystemTheme() { if (getThemePref() === 'system') applyThemePref('system'); }
+if (window.matchMedia) {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  if (mq.addEventListener) mq.addEventListener('change', refreshSystemTheme);
+  else if (mq.addListener) mq.addListener(refreshSystemTheme);
+}
+// Fallback: also re-check when the PWA returns to the foreground, in case the
+// OS theme changed while it was backgrounded (or the change event was missed).
+document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshSystemTheme(); });
+window.addEventListener('pageshow', refreshSystemTheme);
+
+// ══════════════════════════════════════════
+// KEYBOARD INSETS
+// ══════════════════════════════════════════
+// Lift bottom-sheet modals above the on-screen keyboard so their action
+// buttons never get covered. Driven by the visualViewport size.
+function setupKeyboardInsets() {
+  const vv = window.visualViewport;
+  if (!vv) return;
+  const update = () => {
+    const kb = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+    document.documentElement.style.setProperty('--kb', kb + 'px');
+  };
+  vv.addEventListener('resize', update);
+  vv.addEventListener('scroll', update);
+  update();
+}
+
+// ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
 async function init() {
   document.getElementById('currentMonth').textContent = getMonthYear(new Date());
+  setupKeyboardInsets();
   await initDB();
   allTransactions = await dbGetAll('transactions');
   allCommitments = await dbGetAll('commitments');
